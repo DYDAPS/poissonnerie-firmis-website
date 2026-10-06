@@ -2,8 +2,8 @@
 # WordPress
 # ============================================
 
-# Sensitive configuration
-/wp-config.php
+# Shared bootstrap may be versioned after review. Keep environment values local.
+/wp-config-local.php
 
 # Environment files
 .env
