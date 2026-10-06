@@ -1,0 +1,175 @@
+# DYDAPS API Protection - English (United States)
+# Copyright (C) 2026 DYDAPS
+msgid ""
+msgstr ""
+"Project-Id-Version: DYDAPS API Protection 1.2.0\n"
+"Report-Msgid-Bugs-To: https://dydaps.com/\n"
+"POT-Creation-Date: 2026-05-20 00:00+0000\n"
+"PO-Revision-Date: 2026-05-20 00:00+0000\n"
+"Last-Translator: DYDAPS\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: dydaps-api-protection\n"
+
+msgid "DYDAPS API Protection"
+msgstr "DYDAPS API Protection"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header."
+msgstr "Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header."
+
+msgid "A valid API key is required to access this endpoint."
+msgstr "A valid API key is required to access this endpoint."
+
+msgid "This REST API endpoint is blocked."
+msgstr "This REST API endpoint is blocked."
+
+msgid "Copied"
+msgstr "Copied"
+
+msgid "Protect selected WordPress REST API routes by requiring a secret API key in the X-DYDAPS-API-Key header."
+msgstr "Protect selected WordPress REST API routes by requiring a secret API key in the X-DYDAPS-API-Key header."
+
+msgid "Full blocking is enabled: public exceptions stay open, selected routes require the API key, and all other REST routes are blocked."
+msgstr "Full blocking is enabled: public exceptions stay open, selected routes require the API key, and all other REST routes are blocked."
+
+msgid "Only selected routes require the API key. Other REST API routes remain public unless you enable full blocking."
+msgstr "Only selected routes require the API key. Other REST API routes remain public unless you enable full blocking."
+
+msgid "Protected routes"
+msgstr "Protected routes"
+
+msgid "Public exceptions"
+msgstr "Public exceptions"
+
+msgid "Your new API key is shown only once."
+msgstr "Your new API key is shown only once."
+
+msgid "Copy it now and store it securely. The plain key is never stored and cannot be retrieved later."
+msgstr "Copy it now and store it securely. The plain key is never stored and cannot be retrieved later."
+
+msgid "Copy API Key"
+msgstr "Copy API Key"
+
+msgid "Protection status"
+msgstr "Protection status"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Blocking mode"
+msgstr "Blocking mode"
+
+msgid "Full REST API block"
+msgstr "Full REST API block"
+
+msgid "Selected routes only"
+msgstr "Selected routes only"
+
+msgid "Header name"
+msgstr "Header name"
+
+msgid "Copy Header"
+msgstr "Copy Header"
+
+msgid "Stored key preview"
+msgstr "Stored key preview"
+
+msgid "No key generated yet."
+msgstr "No key generated yet."
+
+msgid "Created at"
+msgstr "Created at"
+
+msgid "Last rotation"
+msgstr "Last rotation"
+
+msgid "Revoke the current API key? This will immediately block requests using the old key."
+msgstr "Revoke the current API key? This will immediately block requests using the old key."
+
+msgid "Revoke API Key"
+msgstr "Revoke API Key"
+
+msgid "Generate API Key"
+msgstr "Generate API Key"
+
+msgid "Rotate API Key"
+msgstr "Rotate API Key"
+
+msgid "Integration examples"
+msgstr "Integration examples"
+
+msgid "Every protected request must include the exact custom header shown above."
+msgstr "Every protected request must include the exact custom header shown above."
+
+msgid "cURL"
+msgstr "cURL"
+
+msgid "You are not allowed to manage this setting."
+msgstr "You are not allowed to manage this setting."
+
+msgid "Access denied"
+msgstr "Access denied"
+
+msgid "The request action is invalid."
+msgstr "The request action is invalid."
+
+msgid "Invalid request"
+msgstr "Invalid request"
+
+msgid "Not available"
+msgstr "Not available"
+
+msgid "Protected route configuration"
+msgstr "Protected route configuration"
+
+msgid "Choose the REST API prefixes that must require the API key. You can keep the default WordPress content routes and add broader prefixes such as /wp/v2/ or custom plugin namespaces if needed."
+msgstr "Choose the REST API prefixes that must require the API key. You can keep the default WordPress content routes and add broader prefixes such as /wp/v2/ or custom plugin namespaces if needed."
+
+msgid "Block the whole REST API by default"
+msgstr "Block the whole REST API by default"
+
+msgid "When enabled, public exceptions stay open, selected routes require the API key, and every other REST API route is blocked."
+msgstr "When enabled, public exceptions stay open, selected routes require the API key, and every other REST API route is blocked."
+
+msgid "(all REST API endpoints)"
+msgstr "(all REST API endpoints)"
+
+msgid "(all WordPress v2 content endpoints)"
+msgstr "(all WordPress v2 content endpoints)"
+
+msgid "included by parent"
+msgstr "included by parent"
+
+msgid "Additional custom prefixes"
+msgstr "Additional custom prefixes"
+
+msgid "Add one REST route prefix per line, for example /wc/v3/ or /my-plugin/v1/. Invalid or empty lines are ignored."
+msgstr "Add one REST route prefix per line, for example /wc/v3/ or /my-plugin/v1/. Invalid or empty lines are ignored."
+
+msgid "Add one REST URL or route prefix per line that must stay public, even when full blocking is enabled or when it falls under a protected parent route."
+msgstr "Add one REST URL or route prefix per line that must stay public, even when full blocking is enabled or when it falls under a protected parent route."
+
+msgid "Save protected routes"
+msgstr "Save protected routes"
+
+msgid "Check all"
+msgstr "Check all"
+
+msgid "Uncheck all"
+msgstr "Uncheck all"
+
+msgid "DYDAPS API Protection requires WordPress %1$s or later. You are running WordPress %2$s."
+msgstr "DYDAPS API Protection requires WordPress %1$s or later. You are running WordPress %2$s."
+
+msgid "DYDAPS API Protection requires PHP %1$s or later. You are running PHP %2$s."
+msgstr "DYDAPS API Protection requires PHP %1$s or later. You are running PHP %2$s."

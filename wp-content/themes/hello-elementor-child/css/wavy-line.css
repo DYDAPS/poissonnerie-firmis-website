@@ -1,0 +1,41 @@
+/* CSS for the wave effect */
+.wave svg path {
+  stroke-width: 3 !important;
+}
+.wave.color-blue svg path {
+  stroke: var(--e-global-color-primary) !important;
+}
+.wave.color-white svg path {
+  stroke: var(--e-global-color-accent) !important;
+}
+
+/* CSS for the wavy line */
+.wavy-line {
+  position: relative !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.wavy-line::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: none !important;
+  mask-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath d='M0 50 Q 100 0, 200 50 T 400 50' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E") !important;
+  -webkit-mask-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath d='M0 50 Q 100 0, 200 50 T 400 50' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E") !important;
+  background-color: var(--e-global-color-accent) !important;
+  mask-repeat: repeat-x !important;
+  -webkit-mask-repeat: repeat-x !important;
+  animation: wavy 4s infinite linear !important;
+}
+
+@keyframes wavy {
+  from {
+      background-position: 0 0;
+  }
+  to {
+      background-position: -200px 0;
+  }
+}

@@ -1,0 +1,63 @@
+# ============================================
+# WordPress
+# ============================================
+
+# Sensitive configuration
+/wp-config.php
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# User uploads
+/wp-content/uploads/
+
+# Cache
+/wp-content/cache/
+/wp-content/litespeed/
+/wp-content/w3tc-config/
+/wp-content/wp-rocket-config/
+
+# Temporary WordPress files
+/wp-content/upgrade/
+
+# Backup plugins
+/wp-content/ai1wm-backups/
+/wp-content/updraft/
+/wp-content/backups/
+/wp-content/backup-db/
+/wp-content/wpvividbackups/
+/wp-content/uploads/backup-guard/
+
+# Logs
+*.log
+/wp-content/debug.log
+
+# Database dumps
+*.sql
+*.sql.gz
+*.dump
+
+# Archives / backups
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+
+# Temporary files
+*.tmp
+*.cache
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deployment / FTP tools
+.ftpconfig
+.sftpconfig

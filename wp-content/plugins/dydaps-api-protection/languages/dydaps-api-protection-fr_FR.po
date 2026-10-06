@@ -1,0 +1,175 @@
+# DYDAPS API Protection - French (France)
+# Copyright (C) 2026 DYDAPS
+msgid ""
+msgstr ""
+"Project-Id-Version: DYDAPS API Protection 1.2.0\n"
+"Report-Msgid-Bugs-To: https://dydaps.com/\n"
+"POT-Creation-Date: 2026-05-20 00:00+0000\n"
+"PO-Revision-Date: 2026-05-20 00:00+0000\n"
+"Last-Translator: DYDAPS\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Domain: dydaps-api-protection\n"
+
+msgid "DYDAPS API Protection"
+msgstr "DYDAPS API Protection"
+
+msgid "Settings"
+msgstr "Réglages"
+
+msgid "Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header."
+msgstr "Protégez les routes REST API WordPress sélectionnées avec une clé API secrète envoyée dans un en-tête HTTP personnalisé."
+
+msgid "A valid API key is required to access this endpoint."
+msgstr "Une clé API valide est requise pour accéder à ce point de terminaison."
+
+msgid "This REST API endpoint is blocked."
+msgstr "Ce point de terminaison REST API est bloqué."
+
+msgid "Copied"
+msgstr "Copié"
+
+msgid "Protect selected WordPress REST API routes by requiring a secret API key in the X-DYDAPS-API-Key header."
+msgstr "Protégez les routes REST API WordPress sélectionnées en exigeant une clé API secrète dans l'en-tête X-DYDAPS-API-Key."
+
+msgid "Full blocking is enabled: public exceptions stay open, selected routes require the API key, and all other REST routes are blocked."
+msgstr "Le blocage complet est activé : les exceptions publiques restent ouvertes, les routes sélectionnées exigent la clé API et toutes les autres routes REST sont bloquées."
+
+msgid "Only selected routes require the API key. Other REST API routes remain public unless you enable full blocking."
+msgstr "Seules les routes sélectionnées exigent la clé API. Les autres routes REST API restent publiques tant que vous n'activez pas le blocage complet."
+
+msgid "Protected routes"
+msgstr "Routes protégées"
+
+msgid "Public exceptions"
+msgstr "Exceptions publiques"
+
+msgid "Your new API key is shown only once."
+msgstr "Votre nouvelle clé API n'est affichée qu'une seule fois."
+
+msgid "Copy it now and store it securely. The plain key is never stored and cannot be retrieved later."
+msgstr "Copiez-la maintenant et stockez-la de façon sécurisée. La clé en clair n'est jamais stockée et ne pourra pas être récupérée plus tard."
+
+msgid "Copy API Key"
+msgstr "Copier la clé API"
+
+msgid "Protection status"
+msgstr "Statut de la protection"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "Blocking mode"
+msgstr "Mode de blocage"
+
+msgid "Full REST API block"
+msgstr "Blocage complet de la REST API"
+
+msgid "Selected routes only"
+msgstr "Routes sélectionnées uniquement"
+
+msgid "Header name"
+msgstr "Nom de l'en-tête"
+
+msgid "Copy Header"
+msgstr "Copier l'en-tête"
+
+msgid "Stored key preview"
+msgstr "Aperçu de la clé stockée"
+
+msgid "No key generated yet."
+msgstr "Aucune clé n'a encore été générée."
+
+msgid "Created at"
+msgstr "Créée le"
+
+msgid "Last rotation"
+msgstr "Dernière rotation"
+
+msgid "Revoke the current API key? This will immediately block requests using the old key."
+msgstr "Révoquer la clé API actuelle ? Cela bloquera immédiatement les requêtes utilisant l'ancienne clé."
+
+msgid "Revoke API Key"
+msgstr "Révoquer la clé API"
+
+msgid "Generate API Key"
+msgstr "Générer la clé API"
+
+msgid "Rotate API Key"
+msgstr "Faire tourner la clé API"
+
+msgid "Integration examples"
+msgstr "Exemples d'intégration"
+
+msgid "Every protected request must include the exact custom header shown above."
+msgstr "Chaque requête protégée doit inclure exactement l'en-tête personnalisé affiché ci-dessus."
+
+msgid "cURL"
+msgstr "cURL"
+
+msgid "You are not allowed to manage this setting."
+msgstr "Vous n'êtes pas autorisé à gérer ce réglage."
+
+msgid "Access denied"
+msgstr "Accès refusé"
+
+msgid "The request action is invalid."
+msgstr "L'action de la requête est invalide."
+
+msgid "Invalid request"
+msgstr "Requête invalide"
+
+msgid "Not available"
+msgstr "Non disponible"
+
+msgid "Protected route configuration"
+msgstr "Configuration des routes protégées"
+
+msgid "Choose the REST API prefixes that must require the API key. You can keep the default WordPress content routes and add broader prefixes such as /wp/v2/ or custom plugin namespaces if needed."
+msgstr "Choisissez les préfixes REST API qui doivent exiger la clé API. Vous pouvez conserver les routes de contenu WordPress par défaut et ajouter des préfixes plus larges comme /wp/v2/ ou des espaces de noms de plugins personnalisés si nécessaire."
+
+msgid "Block the whole REST API by default"
+msgstr "Bloquer toute la REST API par défaut"
+
+msgid "When enabled, public exceptions stay open, selected routes require the API key, and every other REST API route is blocked."
+msgstr "Quand cette option est activée, les exceptions publiques restent ouvertes, les routes sélectionnées exigent la clé API et toutes les autres routes REST API sont bloquées."
+
+msgid "(all REST API endpoints)"
+msgstr "(tous les points de terminaison REST API)"
+
+msgid "(all WordPress v2 content endpoints)"
+msgstr "(tous les points de terminaison de contenu WordPress v2)"
+
+msgid "included by parent"
+msgstr "inclus par le parent"
+
+msgid "Additional custom prefixes"
+msgstr "Préfixes personnalisés supplémentaires"
+
+msgid "Add one REST route prefix per line, for example /wc/v3/ or /my-plugin/v1/. Invalid or empty lines are ignored."
+msgstr "Ajoutez un préfixe de route REST par ligne, par exemple /wc/v3/ ou /my-plugin/v1/. Les lignes vides ou invalides sont ignorées."
+
+msgid "Add one REST URL or route prefix per line that must stay public, even when full blocking is enabled or when it falls under a protected parent route."
+msgstr "Ajoutez une URL REST ou un préfixe de route par ligne qui doit rester public, même lorsque le blocage complet est activé ou lorsqu'il dépend d'une route parente protégée."
+
+msgid "Save protected routes"
+msgstr "Enregistrer les routes protégées"
+
+msgid "Check all"
+msgstr "Tout cocher"
+
+msgid "Uncheck all"
+msgstr "Tout décocher"
+
+msgid "DYDAPS API Protection requires WordPress %1$s or later. You are running WordPress %2$s."
+msgstr "DYDAPS API Protection nécessite WordPress %1$s ou une version ultérieure. Vous utilisez WordPress %2$s."
+
+msgid "DYDAPS API Protection requires PHP %1$s or later. You are running PHP %2$s."
+msgstr "DYDAPS API Protection nécessite PHP %1$s ou une version ultérieure. Vous utilisez PHP %2$s."

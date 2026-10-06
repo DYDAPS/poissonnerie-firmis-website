@@ -1,0 +1,24 @@
+.dydaps-api-protection-card{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:24px;margin-top:20px;max-width:1100px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.dydaps-api-protection-intro{display:grid;grid-template-columns:2fr 1fr;gap:24px}
+.dydaps-api-protection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:20px}
+.dydaps-api-protection-panel{border:1px solid #dcdcde;border-radius:8px;padding:16px;background:#f6f7f7}
+.dydaps-api-protection-code{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dydaps-api-protection-value{display:block;width:100%;max-width:100%;padding:10px 12px;background:#fff;border:1px solid #c3c4c7;border-radius:6px;font-family:monospace;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;box-sizing:border-box}
+.dydaps-api-protection-panel code{display:block;max-width:100%;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap}
+.dydaps-api-protection-warning{border-left:4px solid #dba617;background:#fff8e5;padding:16px;margin:20px 0}
+.dydaps-api-protection-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.dydaps-api-protection-routes code{display:block;margin:0 0 8px}
+.dydaps-api-protection-tree{margin:16px 0;padding:16px;border:1px solid #dcdcde;border-radius:8px;background:#f6f7f7}
+.dydaps-api-protection-tree ul{margin:0;padding-left:24px;list-style:none}
+.dydaps-api-protection-tree > ul{padding-left:0}
+.dydaps-api-protection-tree li{margin:8px 0}
+.dydaps-api-protection-tree label{display:flex;gap:8px;align-items:center;cursor:pointer;padding:4px 6px;border-radius:4px;transition:background .1s}
+.dydaps-api-protection-tree label:hover{background:rgba(0,0,0,.04)}
+.dydaps-api-protection-tree code{display:inline-block;font-size:13px}
+.dydaps-api-protection-tree li.is-inherited > label{background:#eef6ff;border-left:3px solid #2271b1;margin-left:-6px;padding-left:6px}
+.dydaps-api-protection-inherited{color:#2271b1;font-size:11px;font-style:italic;margin-left:4px}
+.dydaps-api-protection-option{border:1px solid #dcdcde;border-radius:8px;padding:16px;margin:16px 0;background:#fff}
+.dydaps-api-protection-textarea{width:100%;min-height:140px;font-family:monospace}
+.dydaps-api-protection-toggle-actions{display:flex;gap:8px;align-items:center;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #dcdcde}
+.dydaps-api-protection-toggle-actions .button{font-size:12px}
+@media (max-width:782px){.dydaps-api-protection-intro{grid-template-columns:1fr}}

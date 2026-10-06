@@ -1,0 +1,60 @@
+# Block XML-RPC access
+<Files xmlrpc.php>
+Require all denied
+</Files>
+
+# BEGIN WordPress
+# Les directives (lignes) entre « BEGIN WordPress » et « END WordPress » sont générées
+# dynamiquement, et doivent être modifiées uniquement via les filtres WordPress.
+# Toute modification des directives situées entre ces marqueurs sera surchargée.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
+
+# BEGIN HttpHeaders
+# Security Headers Configuration
+<IfModule mod_headers.c>
+
+# HSTS - Enforce HTTPS connections and prevent downgrade attacks
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+# CSP - Content Security Policy (Highly relaxed for debugging, restrict in production)
+# - Allows all sources (`*`) for scripts, styles, images, fonts, and connections.
+# - Enables inline scripts (`'unsafe-inline'`) and dynamic code execution (`'unsafe-eval'`).
+# - Allows data URIs (`data:`) and blobs (`blob:`) for loading resources.
+Header always set Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline' 'unsafe-eval' data: blob:; img-src * data: blob:; font-src * data: blob:; connect-src *; frame-ancestors *;"
+
+# X-Frame-Options - Prevents Clickjacking attacks by allowing framing only from the same origin
+Header always set X-Frame-Options "SAMEORIGIN"
+
+# X-Content-Type-Options - Prevent MIME-type sniffing attacks
+Header always set X-Content-Type-Options "nosniff"
+
+# Referrer Policy - Controls the information sent in the Referer header
+# - "strict-origin-when-cross-origin" ensures full referrer is sent only for same-origin requests,
+#   and only the origin is sent for cross-origin requests.
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Permissions Policy - Restrict access to sensitive browser APIs
+# - Disables geolocation, microphone, camera, USB, and payment APIs.
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), usb=(), payment=()"
+
+</IfModule>
+# END HttpHeaders
+
+# Deny direct access to the wp-includes directory
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct access to wp-includes folder (but allow necessary assets)
+    RewriteCond %{REQUEST_URI} ^/wp-includes/?$
+    RewriteRule ^wp-includes/?$ - [F,L]
+</IfModule>

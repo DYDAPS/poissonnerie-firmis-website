@@ -1,0 +1,168 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: DYDAPS API Protection 1.2.0\n"
+"Report-Msgid-Bugs-To: https://dydaps.com/\n"
+"POT-Creation-Date: 2026-05-20 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: dydaps-api-protection\n"
+
+msgid "DYDAPS API Protection"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header."
+msgstr ""
+
+msgid "A valid API key is required to access this endpoint."
+msgstr ""
+
+msgid "This REST API endpoint is blocked."
+msgstr ""
+
+msgid "Copied"
+msgstr ""
+
+msgid "Protect selected WordPress REST API routes by requiring a secret API key in the X-DYDAPS-API-Key header."
+msgstr ""
+
+msgid "Full blocking is enabled: public exceptions stay open, selected routes require the API key, and all other REST routes are blocked."
+msgstr ""
+
+msgid "Only selected routes require the API key. Other REST API routes remain public unless you enable full blocking."
+msgstr ""
+
+msgid "Protected routes"
+msgstr ""
+
+msgid "Public exceptions"
+msgstr ""
+
+msgid "Your new API key is shown only once."
+msgstr ""
+
+msgid "Copy it now and store it securely. The plain key is never stored and cannot be retrieved later."
+msgstr ""
+
+msgid "Copy API Key"
+msgstr ""
+
+msgid "Protection status"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Inactive"
+msgstr ""
+
+msgid "Blocking mode"
+msgstr ""
+
+msgid "Full REST API block"
+msgstr ""
+
+msgid "Selected routes only"
+msgstr ""
+
+msgid "Header name"
+msgstr ""
+
+msgid "Copy Header"
+msgstr ""
+
+msgid "Stored key preview"
+msgstr ""
+
+msgid "No key generated yet."
+msgstr ""
+
+msgid "Created at"
+msgstr ""
+
+msgid "Last rotation"
+msgstr ""
+
+msgid "Revoke the current API key? This will immediately block requests using the old key."
+msgstr ""
+
+msgid "Revoke API Key"
+msgstr ""
+
+msgid "Generate API Key"
+msgstr ""
+
+msgid "Rotate API Key"
+msgstr ""
+
+msgid "Integration examples"
+msgstr ""
+
+msgid "Every protected request must include the exact custom header shown above."
+msgstr ""
+
+msgid "cURL"
+msgstr ""
+
+msgid "You are not allowed to manage this setting."
+msgstr ""
+
+msgid "Access denied"
+msgstr ""
+
+msgid "The request action is invalid."
+msgstr ""
+
+msgid "Invalid request"
+msgstr ""
+
+msgid "Not available"
+msgstr ""
+
+msgid "Protected route configuration"
+msgstr ""
+
+msgid "Choose the REST API prefixes that must require the API key. You can keep the default WordPress content routes and add broader prefixes such as /wp/v2/ or custom plugin namespaces if needed."
+msgstr ""
+
+msgid "Block the whole REST API by default"
+msgstr ""
+
+msgid "When enabled, public exceptions stay open, selected routes require the API key, and every other REST API route is blocked."
+msgstr ""
+
+msgid "(all REST API endpoints)"
+msgstr ""
+
+msgid "(all WordPress v2 content endpoints)"
+msgstr ""
+
+msgid "included by parent"
+msgstr ""
+
+msgid "Additional custom prefixes"
+msgstr ""
+
+msgid "Add one REST route prefix per line, for example /wc/v3/ or /my-plugin/v1/. Invalid or empty lines are ignored."
+msgstr ""
+
+msgid "Add one REST URL or route prefix per line that must stay public, even when full blocking is enabled or when it falls under a protected parent route."
+msgstr ""
+
+msgid "Save protected routes"
+msgstr ""
+
+msgid "Check all"
+msgstr ""
+
+msgid "Uncheck all"
+msgstr ""
+
+msgid "DYDAPS API Protection requires WordPress %1$s or later. You are running WordPress %2$s."
+msgstr ""
+
+msgid "DYDAPS API Protection requires PHP %1$s or later. You are running PHP %2$s."
+msgstr ""
