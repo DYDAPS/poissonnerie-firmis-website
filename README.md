@@ -1,113 +1,86 @@
 # Poissonnerie Firmis Website
 
-Source repository for the WordPress website.
-
 ## Overview
 
-This repository contains the tracked source files for the Poissonnerie Firmis Website. It does not by itself provide a complete production runtime or data set.
+This repository contains the tracked WordPress application and site-specific code for Poissonnerie Firmis. The WordPress database remains separate from the filesystem deployment and holds page content, plugin settings, activation state, and other site data.
 
-## Tech stack
+## Tech Stack
 
-WordPress and PHP; HTML, CSS, and JavaScript in the tracked site files.
+- WordPress 7.1.2 (the version in the tracked core source)
+- PHP; use a local runtime compatible with the production host and installed extensions
+- Poissonnerie Firmis Theme (`hello-elementor-child`), based on Hello Elementor
+- Site features and integrations supplied by the plugins listed below
 
-## Project structure
+## Repository Structure
 
-```text
-.
-├── wp-admin/       # WordPress administration
-├── wp-content/     # Themes, plugins, and site content
-├── wp-includes/    # WordPress core libraries
-├── index.php       # WordPress entry point
-└── wp-config-sample.php
-```
+- WordPress core files live at the repository root.
+- `wp-content/themes/` contains the parent and site child theme.
+- `wp-content/plugins/` contains the plugin source shipped by this project.
+- `wp-content/mu-plugins/` contains must-use code when present.
+- `wp-content/uploads/` is persistent user media and is intentionally excluded from Git.
+- `wp-config.php` is the tracked shared bootstrap; the local environment file is not tracked.
 
-## Development
+## Theme
 
-No project-specific development commands were detected at the repository root. Use a compatible PHP and CMS environment for local development.
+The site-specific theme shipped here is **Poissonnerie Firmis Theme (`hello-elementor-child`), based on Hello Elementor**. Its parent theme is included under `wp-content/themes/`. WordPress stores the selected theme in the database; theme activation is therefore not inferred from the directory name alone.
 
-## Git workflow
+## Important Plugins
 
-```sh
-git status
-git pull
-git switch -c feature/short-description
-# Make and review changes
-git add <files>
-git commit -m ":books: Describe the change"
-git push -u origin feature/short-description
-```
+This project includes source for the following site features and integrations:
 
-## Deployment
+- Elementor and Elementor Pro; Essential Addons for Elementor; DYDAPS API Protection; Yoast SEO; Complianz; Site Mailer; PDF Embedder and Templately.
 
-No deployment provider or automated deployment process is documented here. Deploy through the project’s approved process, using a compatible application environment and keeping environment configuration outside source control.
+Plugin files are tracked as application code. Plugin activation, credentials, and settings are WordPress database/configuration state and are not controlled by this README.
 
-## Persistent and non-versioned data
+## Configuration
 
-The WordPress database, uploads, and environment-specific configuration are persistent site data and are not fully represented by this repository.
+- `wp-config.php` is versioned and provides shared WordPress bootstrap configuration. It contains no environment-specific database password, salts, or production tokens.
+- `wp-config-local.php` is private, ignored by Git, and supplied separately for each environment.
+- `wp-config-local.example.php` is the tracked safe template. Copy it when preparing a new environment and fill values only in the ignored private file.
 
-## Maintenance
+Do not commit private configuration or alter production secrets as part of source deployment.
 
-Review `git status` and the diff before committing. Keep secrets, database exports, generated files, and backups out of Git. Update this document when the detected stack or project workflow changes.
+## Persistent and Generated Data
 
-## Ownership and license
+- `wp-content/uploads/` contains original uploaded media and is persistent user-generated data. Preserve it across deployments and back it up independently.
+- Elementor-generated styles, typically below `wp-content/uploads/elementor/css/`, are runtime output. Elementor can regenerate them; do not treat them as theme source.
+- WebP/AVIF variants are generated from original uploads by the configured image plugin. Regenerate them through that plugin if needed.
+- WordPress/plugin caches, logs, temporary upgrade files, and backup-plugin archives are runtime or backup data, not source. Keep them out of the tracked deployment. The database is persistent and is not deployed by Git.
 
-No project-specific license or ownership terms are declared in this repository. Confirm applicable ownership and reuse rights with the project owner.
+## GitHub and OVH Deployment
 
----
+- GitHub repository: [`DYDAPS/poissonnerie-firmis-website`](https://github.com/DYDAPS/poissonnerie-firmis-website)
+- `main` is the production branch and GitHub is the source of truth for tracked source files.
+- The configured OVH Git deployment targets the production `www` directory. A push to `main` is expected to trigger deployment through the GitHub/OVH webhook.
+- The deployment must preserve ignored environment configuration and persistent uploads. Never place `.git` or a private config file into a manual FTP transfer.
 
-# Version française
+## Automatic Deployment and Checklist
 
-# Poissonnerie Firmis Website
+After a reviewed push, confirm the production revision (or deployed README hash where server-side Git metadata is unavailable), then check:
 
-Dépôt source du site WordPress de la Poissonnerie Firmis.
+1. Homepage and a representative database-backed page return successfully.
+2. CSS, JavaScript, and an original uploaded image load.
+3. Elementor renders and its generated styles are available or regenerated.
+4. The intended admin login route remains reachable when its location is known.
+5. `wp-config-local.php`, uploads, and other required persistent data remain present.
+6. PHP/web-server logs show no new fatal error.
 
-## Présentation
+## Local Development and Maintenance
 
-Ce dépôt contient les fichiers sources versionnés du projet Poissonnerie Firmis Website. Il ne fournit pas à lui seul un environnement de production ni l’ensemble des données du site.
+No repository-wide build or test command is defined. Develop against an isolated WordPress environment with a compatible PHP/MySQL stack and non-production data. Keep custom theme/plugin changes in their existing project directories; do not edit core or dependency output directly. Follow a plugin?s own documented development workflow when changing it.
 
-## Technologies
+## Update Policy
 
-WordPress et PHP ; HTML, CSS et JavaScript sont présents dans les fichiers du site versionnés.
+Review and test WordPress core, theme, and plugin changes in the project checkout, commit only intended tracked source, and deploy through the `main` workflow. Database migrations and plugin settings require a separate, controlled plan; a filesystem push does not deploy them.
 
-## Structure du projet
+## Rollback
 
-```text
-.
-├── wp-admin/       # Administration WordPress
-├── wp-content/     # Thèmes, extensions et contenu du site
-├── wp-includes/    # Bibliothèques du cœur WordPress
-├── index.php       # Point d’entrée WordPress
-└── wp-config-sample.php
-```
+Before a risky production deployment, retain a verified copy of the current `www` tree (for example, `www-backup`) and a separate database backup. If verification fails, restore the prior tree and investigate before retrying. Do not remove the rollback copy until the new release is accepted.
 
-## Développement
+## Security
 
-Aucune commande de développement propre au projet n’a été détectée à la racine du dépôt. Utiliser un environnement PHP et CMS compatible pour le développement local.
+Never commit passwords, database credentials, salts, API keys, webhook secrets, private configuration, database exports, user/customer data, uploads, or backups. Keep `wp-config-local.php` ignored and use the example file only as a placeholder template.
 
-## Flux Git
+## Project-Specific Notes
 
-```sh
-git status
-git pull
-git switch -c feature/description-courte
-# Modifier et relire les changements
-git add <files>
-git commit -m ":books: Describe the change"
-git push -u origin feature/description-courte
-```
-
-## Déploiement
-
-Aucun hébergeur ni processus de déploiement automatisé n’est documenté ici. Déployer selon le processus approuvé du projet, dans un environnement applicatif compatible et en conservant la configuration d’environnement hors du contrôle de version.
-
-## Données persistantes et non versionnées
-
-La base de données WordPress, les fichiers téléversés et la configuration propre à l’environnement sont des données persistantes qui ne sont pas entièrement représentées par ce dépôt.
-
-## Maintenance
-
-Relire `git status` et le diff avant chaque commit. Ne pas versionner les secrets, exports de base de données, fichiers générés ni sauvegardes. Mettre ce document à jour si la pile technique détectée ou le flux du projet évolue.
-
-## Propriété et licence
-
-Aucune licence ni condition de propriété propre au projet n’est déclarée dans ce dépôt. Confirmer les droits de propriété et de réutilisation applicables auprès du propriétaire du projet.
+The site-specific child theme and plugin source are maintained with the WordPress application.
