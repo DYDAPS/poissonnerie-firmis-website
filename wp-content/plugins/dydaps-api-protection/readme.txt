@@ -4,7 +4,7 @@ Tags: rest api, api key, security, headless, protection
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,10 +20,14 @@ Features:
 * Generate, rotate, and revoke API keys
 * Keep selected routes public through exceptions
 * Block the full REST API by default when needed
+* Optionally allow same-process WordPress rest_do_request() calls (disabled by default)
+* Manage exact REST namespace exceptions without bypassing native permissions
 * Use a lightweight admin interface with no external dependencies
 * Ship with English and French translations
 
 Every protected request must include the `X-DYDAPS-API-Key` header.
+
+Same-process internal requests through WordPress `rest_do_request()` are subject to DYDAPS rules unless explicitly allowed. HTTP loopbacks remain protected because they cannot be safely distinguished from external requests. Namespace exceptions bypass DYDAPS blocking only; authentication handling is unchanged and endpoint permission callbacks still run. WordPress does not perform HTTP authentication for direct `rest_do_request()` calls; callers supply the current-user context.
 
 == Installation ==
 
@@ -53,6 +57,11 @@ No. Only a SHA-256 hash is stored. The plain key is shown once when it is genera
 * Added a lightweight autoloader and cleaned the internal plugin structure.
 * Moved admin CSS and JavaScript into dedicated asset files.
 * Tightened route prefix matching and improved translation maintenance.
+
+= 1.3.0 =
+
+* Added conservative same-process internal REST request handling.
+* Added registered namespace inventory and exact namespace exceptions.
 
 = 1.1.0 =
 

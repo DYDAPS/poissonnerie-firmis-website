@@ -22,3 +22,4 @@
 .dydaps-api-protection-toggle-actions{display:flex;gap:8px;align-items:center;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #dcdcde}
 .dydaps-api-protection-toggle-actions .button{font-size:12px}
 @media (max-width:782px){.dydaps-api-protection-intro{grid-template-columns:1fr}}
+.dydaps-api-protection-table-wrap{max-height:560px;overflow:auto;border:1px solid #c3c4c7}.dydaps-api-protection-table-wrap table{border:0}.dydaps-api-protection-table-wrap th{position:sticky;top:0;background:#f6f7f7;z-index:1}.dydaps-api-protection-table-wrap td{vertical-align:top}.dydaps-api-protection-table-wrap details{margin-top:6px}.dydaps-api-protection-table-wrap details ul{max-height:180px;overflow:auto;margin:6px 0;padding-left:18px}.dydaps-api-protection-table-wrap code{overflow-wrap:anywhere}

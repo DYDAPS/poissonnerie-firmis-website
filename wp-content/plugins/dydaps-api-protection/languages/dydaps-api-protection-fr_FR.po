@@ -2,7 +2,7 @@
 # Copyright (C) 2026 DYDAPS
 msgid ""
 msgstr ""
-"Project-Id-Version: DYDAPS API Protection 1.2.0\n"
+"Project-Id-Version: DYDAPS API Protection 1.3.0\n"
 "Report-Msgid-Bugs-To: https://dydaps.com/\n"
 "POT-Creation-Date: 2026-05-20 00:00+0000\n"
 "PO-Revision-Date: 2026-05-20 00:00+0000\n"
@@ -173,3 +173,75 @@ msgstr "DYDAPS API Protection nécessite WordPress %1$s ou une version ultérieu
 
 msgid "DYDAPS API Protection requires PHP %1$s or later. You are running PHP %2$s."
 msgstr "DYDAPS API Protection nécessite PHP %1$s ou une version ultérieure. Vous utilisez PHP %2$s."
+
+msgid "Internal WordPress requests"
+msgstr "Requêtes internes WordPress"
+
+msgid "Allow internal WordPress requests"
+msgstr "Autoriser les requêtes internes WordPress"
+
+msgid "When enabled, only same-process requests dispatched through WordPress rest_do_request() bypass DYDAPS rules. HTTP loopbacks cannot be safely distinguished from external callers and remain protected. WordPress authentication and route permission callbacks are still enforced. Disabled by default."
+msgstr "Lorsque cette option est activée, seules les requêtes du même processus exécutées par rest_do_request() contournent les règles DYDAPS. Les appels HTTP en boucle locale restent protégés et l’authentification WordPress ainsi que les permission_callback restent appliqués. Option désactivée par défaut."
+
+msgid "Save internal request setting"
+msgstr "Enregistrer le réglage des requêtes internes"
+
+msgid "REST namespace exceptions"
+msgstr "Exceptions de namespaces REST"
+
+msgid "An allowed namespace is exempt only from DYDAPS blocking. WordPress authentication and each endpoint permission_callback still apply. Ownership is shown only when it can be inferred from registered callback files; otherwise it is unknown."
+msgstr "Un namespace autorisé échappe uniquement au blocage DYDAPS. L’authentification WordPress et le permission_callback de chaque endpoint restent appliqués. Le propriétaire est affiché uniquement lorsqu’il peut être déduit des fichiers des fonctions enregistrées ; sinon il est inconnu."
+
+msgid "Search namespaces and endpoints"
+msgstr "Rechercher des namespaces et endpoints"
+
+msgid "Namespace"
+msgstr "Namespace"
+
+msgid "Associated extension"
+msgstr "Extension associée"
+
+msgid "Status"
+msgstr "État"
+
+msgid "Authorization"
+msgstr "Autorisation"
+
+msgid "Allowed"
+msgstr "Autorisé"
+
+msgid "Protected"
+msgstr "Protégé"
+
+msgid "Endpoints"
+msgstr "Endpoints"
+
+msgid "Allow"
+msgstr "Autoriser"
+
+msgid "Keep authorization"
+msgstr "Conserver l’autorisation"
+
+msgid "Unknown"
+msgstr "Inconnu"
+
+msgid "Multiple owners"
+msgstr "Plusieurs propriétaires"
+
+msgid "Not currently registered"
+msgstr "Non enregistré actuellement"
+
+msgid "No registered REST namespaces were found."
+msgstr "Aucun namespace REST enregistré n’a été trouvé."
+
+msgid "Save namespace exceptions"
+msgstr "Enregistrer les exceptions de namespaces"
+
+msgid "Settings saved."
+msgstr "Réglages enregistrés."
+
+msgid "When enabled, only same-process requests dispatched through WordPress rest_do_request() bypass DYDAPS rules. HTTP loopbacks cannot be safely distinguished from external callers and remain protected. Route permission callbacks are left unchanged. WordPress does not perform HTTP authentication for direct rest_do_request() calls; the caller supplies the current-user context. Disabled by default."
+msgstr "Lorsque cette option est activée, seules les requêtes du même processus exécutées par rest_do_request() contournent les règles DYDAPS. Les appels HTTP en boucle locale restent protégés. Les callbacks d'autorisation des routes ne sont pas modifiés. WordPress n'effectue pas l'authentification HTTP pour un appel direct à rest_do_request() : l'appelant fournit le contexte de l'utilisateur courant. Option désactivée par défaut."
+
+msgid "An allowed namespace is exempt only from DYDAPS blocking. Authentication handling is left unchanged, and each endpoint permission_callback still runs. Ownership is shown only when it can be inferred from registered callback files; otherwise it is unknown."
+msgstr "Un namespace autorisé échappe uniquement au blocage DYDAPS. L'authentification n'est pas modifiée et le permission_callback de chaque endpoint continue de s'exécuter. Le propriétaire est affiché uniquement s'il peut être déduit des fichiers de callbacks enregistrés ; sinon il est inconnu."

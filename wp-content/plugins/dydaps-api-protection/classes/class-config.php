@@ -85,6 +85,12 @@ final class Dydaps_Api_Config {
 	 */
 	public const OPTION_PUBLIC_ROUTE_PREFIXES = 'dydaps_api_public_route_prefixes';
 
+	/** Option name: allow same-process REST requests made through rest_do_request(). */
+	public const OPTION_ALLOW_INTERNAL_REST_REQUESTS = 'dydaps_api_allow_internal_rest_requests';
+
+	/** Option name: explicitly allowed REST namespaces. */
+	public const OPTION_ALLOWED_REST_NAMESPACES = 'dydaps_api_allowed_rest_namespaces';
+
 	/**
 	 * All plugin-managed option names.
 	 *
@@ -97,6 +103,8 @@ final class Dydaps_Api_Config {
 		self::OPTION_PROTECTED_ROUTE_PREFIXES,
 		self::OPTION_BLOCK_ALL_REST_API,
 		self::OPTION_PUBLIC_ROUTE_PREFIXES,
+		self::OPTION_ALLOW_INTERNAL_REST_REQUESTS,
+		self::OPTION_ALLOWED_REST_NAMESPACES,
 	];
 
 	/**

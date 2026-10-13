@@ -168,6 +168,21 @@
 		updateAncestors(checkbox);
 	});
 
+	document.addEventListener("input", function (event) {
+		var search = event.target;
+		var query;
+		var rows;
+		var i;
+		if (!search.matches("[data-dydaps-namespace-search]")) {
+			return;
+		}
+		query = search.value.trim().toLowerCase();
+		rows = document.querySelectorAll("[data-dydaps-namespace-row]");
+		for (i = 0; i < rows.length; i++) {
+			rows[i].hidden = query !== "" && rows[i].getAttribute("data-search").indexOf(query) === -1;
+		}
+	});
+
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", initInheritedState);
 	} else {

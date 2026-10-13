@@ -52,6 +52,8 @@ final class Dydaps_Api_Admin_Page {
 	 * @var string
 	 */
 	private $public_routes_option_name;
+	private $allow_internal_option_name;
+	private $allowed_namespaces_option_name;
 
 	/**
 	 * Constructor.
@@ -63,13 +65,15 @@ final class Dydaps_Api_Admin_Page {
 	 * @param string                 $block_all_option_name        Option toggling full REST API blocking.
 	 * @param string                 $public_routes_option_name    Option storing public routes.
 	 */
-	public function __construct( Dydaps_Api_Key_Service $api_key_service, array $protected_route_prefixes, $header_name, $protected_routes_option_name, $block_all_option_name, $public_routes_option_name ) {
+	public function __construct( Dydaps_Api_Key_Service $api_key_service, array $protected_route_prefixes, $header_name, $protected_routes_option_name, $block_all_option_name, $public_routes_option_name, $allow_internal_option_name = '', $allowed_namespaces_option_name = '' ) {
 		$this->api_key_service             = $api_key_service;
 		$this->protected_route_prefixes    = $protected_route_prefixes;
 		$this->header_name                 = $header_name;
 		$this->protected_routes_option_name = $protected_routes_option_name;
 		$this->block_all_option_name       = $block_all_option_name;
 		$this->public_routes_option_name   = $public_routes_option_name;
+		$this->allow_internal_option_name  = $allow_internal_option_name;
+		$this->allowed_namespaces_option_name = $allowed_namespaces_option_name;
 	}
 
 	/**
@@ -124,9 +128,15 @@ final class Dydaps_Api_Admin_Page {
 		$effective_route_prefixes = $this->get_saved_route_prefixes();
 		$block_all_enabled        = $this->is_block_all_enabled();
 		$public_route_prefixes    = $this->get_public_route_prefixes();
+		$internal_enabled         = '' !== $this->allow_internal_option_name && Dydaps_Api_Option_Store::get_bool( $this->allow_internal_option_name );
+		$namespace_inventory      = Dydaps_Api_Namespace_Registry::get_inventory();
+		$allowed_namespaces       = '' !== $this->allowed_namespaces_option_name ? Dydaps_Api_Option_Store::get_namespaces( $this->allowed_namespaces_option_name ) : [];
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__( 'DYDAPS API Protection', 'dydaps-api-protection' ); ?></h1>
+			<?php if ( isset( $_GET['dydaps_saved'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['dydaps_saved'] ) ) ) : ?>
+				<div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Settings saved.', 'dydaps-api-protection' ); ?></p></div>
+			<?php endif; ?>
 
 			<div class="dydaps-api-protection-card">
 				<div class="dydaps-api-protection-intro">
@@ -214,6 +224,43 @@ final class Dydaps_Api_Admin_Page {
 						</form>
 					<?php endif; ?>
 				</div>
+			</div>
+
+			<div class="dydaps-api-protection-card">
+				<h2><?php echo esc_html__( 'Internal WordPress requests', 'dydaps-api-protection' ); ?></h2>
+				<form method="post" action="<?php echo esc_url( $this->get_admin_post_url() ); ?>">
+					<?php wp_nonce_field( 'dydaps_api_protection_save_internal', 'dydaps_api_protection_nonce' ); ?>
+					<input type="hidden" name="action" value="dydaps_api_protection_save_internal" />
+					<label><input type="checkbox" name="dydaps_allow_internal_rest_requests" value="1" <?php checked( $internal_enabled ); ?> /> <strong><?php echo esc_html__( 'Allow internal WordPress requests', 'dydaps-api-protection' ); ?></strong></label>
+					<p><?php echo esc_html__( 'When enabled, only same-process requests dispatched through WordPress rest_do_request() bypass DYDAPS rules. HTTP loopbacks cannot be safely distinguished from external callers and remain protected. Route permission callbacks are left unchanged. WordPress does not perform HTTP authentication for direct rest_do_request() calls; the caller supplies the current-user context. Disabled by default.', 'dydaps-api-protection' ); ?></p>
+					<p><button type="submit" class="button button-primary"><?php echo esc_html__( 'Save internal request setting', 'dydaps-api-protection' ); ?></button></p>
+				</form>
+			</div>
+
+			<div class="dydaps-api-protection-card">
+				<h2><?php echo esc_html__( 'REST namespace exceptions', 'dydaps-api-protection' ); ?></h2>
+				<p><?php echo esc_html__( 'An allowed namespace is exempt only from DYDAPS blocking. Authentication handling is left unchanged, and each endpoint permission_callback still runs. Ownership is shown only when it can be inferred from registered callback files; otherwise it is unknown.', 'dydaps-api-protection' ); ?></p>
+				<form method="post" action="<?php echo esc_url( $this->get_admin_post_url() ); ?>">
+					<?php wp_nonce_field( 'dydaps_api_protection_save_namespaces', 'dydaps_api_protection_nonce' ); ?>
+					<input type="hidden" name="action" value="dydaps_api_protection_save_namespaces" />
+					<p><label for="dydaps-namespace-search"><?php echo esc_html__( 'Search namespaces and endpoints', 'dydaps-api-protection' ); ?></label> <input id="dydaps-namespace-search" type="search" class="regular-text" data-dydaps-namespace-search="1" /></p>
+					<div class="dydaps-api-protection-table-wrap">
+					<table class="widefat striped"><thead><tr><th><?php echo esc_html__( 'Namespace', 'dydaps-api-protection' ); ?></th><th><?php echo esc_html__( 'Associated extension', 'dydaps-api-protection' ); ?></th><th><?php echo esc_html__( 'Status', 'dydaps-api-protection' ); ?></th><th><?php echo esc_html__( 'Authorization', 'dydaps-api-protection' ); ?></th></tr></thead><tbody>
+						<?php foreach ( $namespace_inventory as $namespace => $details ) : $is_allowed = in_array( $namespace, $allowed_namespaces, true ); $search_text = $namespace . ' ' . implode( ' ', $details['routes'] ) . ' ' . $details['owner']; ?>
+							<tr data-dydaps-namespace-row="1" data-search="<?php echo esc_attr( strtolower( $search_text ) ); ?>">
+								<td><code><?php echo esc_html( $namespace ); ?></code><details><summary><?php echo esc_html__( 'Endpoints', 'dydaps-api-protection' ); ?> (<?php echo esc_html( (string) count( $details['routes'] ) ); ?>)</summary><ul><?php foreach ( $details['routes'] as $route ) : ?><li><code><?php echo esc_html( $route ); ?></code></li><?php endforeach; ?></ul></details></td>
+								<td><?php echo esc_html( $details['owner'] ); ?></td>
+								<td><?php echo esc_html( $is_allowed ? __( 'Allowed', 'dydaps-api-protection' ) : __( 'Protected', 'dydaps-api-protection' ) ); ?></td>
+								<td><label><input type="checkbox" name="dydaps_allowed_namespaces[]" value="<?php echo esc_attr( $namespace ); ?>" <?php checked( $is_allowed ); ?> /> <?php echo esc_html__( 'Allow', 'dydaps-api-protection' ); ?></label></td>
+							</tr>
+						<?php endforeach; ?>
+						<?php foreach ( array_diff( $allowed_namespaces, array_keys( $namespace_inventory ) ) as $namespace ) : ?>
+							<tr data-dydaps-namespace-row="1" data-search="<?php echo esc_attr( strtolower( $namespace . ' ' . __( 'not currently registered', 'dydaps-api-protection' ) ) ); ?>"><td><code><?php echo esc_html( $namespace ); ?></code></td><td><?php echo esc_html__( 'Unknown', 'dydaps-api-protection' ); ?></td><td><?php echo esc_html__( 'Not currently registered', 'dydaps-api-protection' ); ?></td><td><label><input type="checkbox" name="dydaps_allowed_namespaces[]" value="<?php echo esc_attr( $namespace ); ?>" checked="checked" /> <?php echo esc_html__( 'Keep authorization', 'dydaps-api-protection' ); ?></label></td></tr>
+						<?php endforeach; ?>
+						<?php if ( empty( $namespace_inventory ) && empty( $allowed_namespaces ) ) : ?><tr><td colspan="4"><?php echo esc_html__( 'No registered REST namespaces were found.', 'dydaps-api-protection' ); ?></td></tr><?php endif; ?>
+					</tbody></table></div>
+					<p><button type="submit" class="button button-primary"><?php echo esc_html__( 'Save namespace exceptions', 'dydaps-api-protection' ); ?></button></p>
+				</form>
 			</div>
 
 			<div class="dydaps-api-protection-card">
@@ -385,6 +432,32 @@ final class Dydaps_Api_Admin_Page {
 		$this->redirect_to_settings();
 	}
 
+	/** Save the conservative internal dispatch opt-in. */
+	public function handle_save_internal() {
+		$this->verify_admin_action( 'dydaps_api_protection_save_internal', 'dydaps_api_protection_save_internal' );
+		Dydaps_Api_Option_Store::set( $this->allow_internal_option_name, isset( $_POST['dydaps_allow_internal_rest_requests'] ) ? '1' : '0' );
+		$this->redirect_to_settings( true );
+	}
+
+	/** Save only valid, unique namespace identifiers. */
+	public function handle_save_namespaces() {
+		$this->verify_admin_action( 'dydaps_api_protection_save_namespaces', 'dydaps_api_protection_save_namespaces' );
+		$submitted = isset( $_POST['dydaps_allowed_namespaces'] ) ? (array) wp_unslash( $_POST['dydaps_allowed_namespaces'] ) : [];
+		$namespaces = [];
+		$registered  = array_fill_keys( array_keys( Dydaps_Api_Namespace_Registry::get_inventory() ), true );
+		$previously_allowed = array_fill_keys( Dydaps_Api_Option_Store::get_namespaces( $this->allowed_namespaces_option_name ), true );
+		foreach ( $submitted as $namespace ) {
+			$namespace = Dydaps_Api_Route_Utils::normalize_namespace( $namespace );
+			// New grants must reference an active namespace. Preserve only prior grants
+			// for temporarily inactive extensions so administrators can remove them later.
+			if ( '' !== $namespace && ( isset( $registered[ $namespace ] ) || isset( $previously_allowed[ $namespace ] ) ) ) {
+				$namespaces[] = $namespace;
+			}
+		}
+		Dydaps_Api_Option_Store::set( $this->allowed_namespaces_option_name, array_values( array_unique( $namespaces ) ) );
+		$this->redirect_to_settings( true );
+	}
+
 	/**
 	 * Enforce capability checks.
 	 *
@@ -465,8 +538,8 @@ final class Dydaps_Api_Admin_Page {
 	 *
 	 * @return void
 	 */
-	private function redirect_to_settings() {
-		wp_safe_redirect( $this->get_settings_page_url() );
+	private function redirect_to_settings( $saved = false ) {
+		wp_safe_redirect( $this->get_settings_page_url() . ( $saved ? '&dydaps_saved=1' : '' ) );
 		exit;
 	}
 

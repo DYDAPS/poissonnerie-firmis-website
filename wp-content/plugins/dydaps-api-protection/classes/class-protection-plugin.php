@@ -63,6 +63,7 @@ final class Dydaps_Api_Protection_Plugin {
 	public function run() {
 		$this->load_textdomain();
 		add_filter( 'rest_authentication_errors', [ $this->get_rest_protection(), 'protect_routes' ], 20 );
+		add_filter( 'rest_pre_dispatch', [ $this->get_rest_protection(), 'protect_internal_dispatch' ], 20, 3 );
 		add_filter( 'plugin_action_links_' . plugin_basename( DYDAPS_API_PROTECTION_FILE ), [ $this, 'add_plugin_action_links' ] );
 		add_filter( 'all_plugins', [ $this, 'filter_plugin_row_text' ] );
 
@@ -73,6 +74,8 @@ final class Dydaps_Api_Protection_Plugin {
 			add_action( 'admin_post_dydaps_api_protection_rotate', [ $this->get_admin_page(), 'handle_rotate' ] );
 			add_action( 'admin_post_dydaps_api_protection_revoke', [ $this->get_admin_page(), 'handle_revoke' ] );
 			add_action( 'admin_post_dydaps_api_protection_save_routes', [ $this->get_admin_page(), 'handle_save_routes' ] );
+			add_action( 'admin_post_dydaps_api_protection_save_internal', [ $this->get_admin_page(), 'handle_save_internal' ] );
+			add_action( 'admin_post_dydaps_api_protection_save_namespaces', [ $this->get_admin_page(), 'handle_save_namespaces' ] );
 		}
 	}
 
@@ -175,7 +178,9 @@ final class Dydaps_Api_Protection_Plugin {
 				Dydaps_Api_Config::DEFAULT_PROTECTED_ROUTE_PREFIXES,
 				Dydaps_Api_Config::OPTION_PROTECTED_ROUTE_PREFIXES,
 				Dydaps_Api_Config::OPTION_BLOCK_ALL_REST_API,
-				Dydaps_Api_Config::OPTION_PUBLIC_ROUTE_PREFIXES
+				Dydaps_Api_Config::OPTION_PUBLIC_ROUTE_PREFIXES,
+				Dydaps_Api_Config::OPTION_ALLOW_INTERNAL_REST_REQUESTS,
+				Dydaps_Api_Config::OPTION_ALLOWED_REST_NAMESPACES
 			);
 		}
 
@@ -195,7 +200,9 @@ final class Dydaps_Api_Protection_Plugin {
 				Dydaps_Api_Config::HEADER_NAME,
 				Dydaps_Api_Config::OPTION_PROTECTED_ROUTE_PREFIXES,
 				Dydaps_Api_Config::OPTION_BLOCK_ALL_REST_API,
-				Dydaps_Api_Config::OPTION_PUBLIC_ROUTE_PREFIXES
+				Dydaps_Api_Config::OPTION_PUBLIC_ROUTE_PREFIXES,
+				Dydaps_Api_Config::OPTION_ALLOW_INTERNAL_REST_REQUESTS,
+				Dydaps_Api_Config::OPTION_ALLOWED_REST_NAMESPACES
 			);
 		}
 

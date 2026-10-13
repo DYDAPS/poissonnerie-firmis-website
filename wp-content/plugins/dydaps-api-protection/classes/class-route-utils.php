@@ -11,6 +11,32 @@ defined( 'ABSPATH' ) || exit;
  * Route normalization and validation utilities.
  */
 final class Dydaps_Api_Route_Utils {
+	/** Normalize and validate an exact REST namespace (without route slashes). */
+	public static function normalize_namespace( $namespace ) {
+		if ( ! is_string( $namespace ) ) {
+			return '';
+		}
+
+		$namespace = trim( $namespace, " \t\n\r\0\x0B/" );
+		if ( '' === $namespace || strlen( $namespace ) > 200 || ! preg_match( '#^[A-Za-z0-9._~-]+(?:/[A-Za-z0-9._~-]+)*$#D', $namespace ) || false !== strpos( $namespace, '..' ) ) {
+			return '';
+		}
+
+		return $namespace;
+	}
+
+	/** Match only an exact namespace boundary, never a similarly named one. */
+	public static function route_matches_namespace( $route, $namespace ) {
+		$namespace = self::normalize_namespace( $namespace );
+		$route     = self::normalize_route_prefix( $route );
+		if ( '' === $namespace || '' === $route ) {
+			return false;
+		}
+
+		$namespace_route = '/' . $namespace;
+		return $route === $namespace_route || 0 === strpos( $route, $namespace_route . '/' );
+	}
+
 	/**
 	 * Normalize a route prefix into a leading-slash REST path.
 	 *

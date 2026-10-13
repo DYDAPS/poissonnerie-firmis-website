@@ -49,6 +49,29 @@ final class Dydaps_Api_Option_Store {
 	}
 
 	/**
+	 * Get normalized REST namespace identifiers.
+	 *
+	 * @param string $option_name Option name.
+	 * @return string[]
+	 */
+	public static function get_namespaces( $option_name ) {
+		$value = get_option( $option_name, [] );
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
+		$namespaces = [];
+		foreach ( $value as $namespace ) {
+			$namespace = Dydaps_Api_Route_Utils::normalize_namespace( $namespace );
+			if ( '' !== $namespace ) {
+				$namespaces[] = $namespace;
+			}
+		}
+
+		return array_values( array_unique( $namespaces ) );
+	}
+
+	/**
 	 * Store an option with autoload disabled when first created.
 	 *
 	 * @param string $option_name Option name.

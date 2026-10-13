@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: DYDAPS API Protection 1.2.0\n"
+"Project-Id-Version: DYDAPS API Protection 1.3.0\n"
 "Report-Msgid-Bugs-To: https://dydaps.com/\n"
 "POT-Creation-Date: 2026-05-20 00:00+0000\n"
 "MIME-Version: 1.0\n"
@@ -165,4 +165,76 @@ msgid "DYDAPS API Protection requires WordPress %1$s or later. You are running W
 msgstr ""
 
 msgid "DYDAPS API Protection requires PHP %1$s or later. You are running PHP %2$s."
+msgstr ""
+
+msgid "Internal WordPress requests"
+msgstr ""
+
+msgid "Allow internal WordPress requests"
+msgstr ""
+
+msgid "When enabled, only same-process requests dispatched through WordPress rest_do_request() bypass DYDAPS rules. HTTP loopbacks cannot be safely distinguished from external callers and remain protected. WordPress authentication and route permission callbacks are still enforced. Disabled by default."
+msgstr ""
+
+msgid "Save internal request setting"
+msgstr ""
+
+msgid "REST namespace exceptions"
+msgstr ""
+
+msgid "An allowed namespace is exempt only from DYDAPS blocking. WordPress authentication and each endpoint permission_callback still apply. Ownership is shown only when it can be inferred from registered callback files; otherwise it is unknown."
+msgstr ""
+
+msgid "Search namespaces and endpoints"
+msgstr ""
+
+msgid "Namespace"
+msgstr ""
+
+msgid "Associated extension"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Authorization"
+msgstr ""
+
+msgid "Allowed"
+msgstr ""
+
+msgid "Protected"
+msgstr ""
+
+msgid "Endpoints"
+msgstr ""
+
+msgid "Allow"
+msgstr ""
+
+msgid "Keep authorization"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Multiple owners"
+msgstr ""
+
+msgid "Not currently registered"
+msgstr ""
+
+msgid "No registered REST namespaces were found."
+msgstr ""
+
+msgid "Save namespace exceptions"
+msgstr ""
+
+msgid "Settings saved."
+msgstr ""
+
+msgid "When enabled, only same-process requests dispatched through WordPress rest_do_request() bypass DYDAPS rules. HTTP loopbacks cannot be safely distinguished from external callers and remain protected. Route permission callbacks are left unchanged. WordPress does not perform HTTP authentication for direct rest_do_request() calls; the caller supplies the current-user context. Disabled by default."
+msgstr ""
+
+msgid "An allowed namespace is exempt only from DYDAPS blocking. Authentication handling is left unchanged, and each endpoint permission_callback still runs. Ownership is shown only when it can be inferred from registered callback files; otherwise it is unknown."
 msgstr ""
