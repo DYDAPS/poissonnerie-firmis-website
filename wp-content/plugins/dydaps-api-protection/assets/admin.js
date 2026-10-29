@@ -1,191 +1,121 @@
 (function () {
-	function getDirectChildren(checkbox) {
-		var id = checkbox.id;
-		if (!id) {
-			return [];
-		}
+	function setActiveTab(tab) {
+		var tabs = Array.prototype.slice.call(document.querySelectorAll("[role=tab]"));
+		var index;
 
-		return Array.prototype.slice.call(
-			document.querySelectorAll("[data-parent-checkbox=" + JSON.stringify("#" + id) + "]")
-		);
-	}
+		for (index = 0; index < tabs.length; index++) {
+			var active = tabs[index] === tab;
+			var panel = document.getElementById(tabs[index].getAttribute("aria-controls"));
 
-	function applyToDescendants(checkbox, checked) {
-		var children = getDirectChildren(checkbox);
-		var i;
-		var li;
-
-		for (i = 0; i < children.length; i++) {
-			children[i].checked = checked;
-			children[i].indeterminate = false;
-			li = children[i].closest("li");
-
-			if (li) {
-				li.classList.toggle("is-inherited", checked);
+			tabs[index].setAttribute("aria-selected", active ? "true" : "false");
+			tabs[index].setAttribute("tabindex", active ? "0" : "-1");
+			if (panel) {
+				panel.hidden = !active;
 			}
-
-			applyToDescendants(children[i], checked);
 		}
 	}
 
-	function updateAncestors(checkbox) {
-		var parentSelector = checkbox.getAttribute("data-parent-checkbox");
-		var parent;
-		var siblings;
-		var checkedCount;
-		var indeterminateCount;
-		var i;
+	function copyText(target) {
+		var value = target.value || target.textContent || "";
 
-		if (!parentSelector) {
+		if (navigator.clipboard && window.isSecureContext) {
+			return navigator.clipboard.writeText(value.trim());
+		}
+
+		var selection = window.getSelection();
+		var range = document.createRange();
+		range.selectNodeContents(target);
+		selection.removeAllRanges();
+		selection.addRange(range);
+		var copied = document.execCommand("copy");
+		selection.removeAllRanges();
+		return copied ? Promise.resolve() : Promise.reject(new Error("Copy unavailable"));
+	}
+
+	function filterRows(inputSelector, rowSelector) {
+		var input = document.querySelector(inputSelector);
+		if (!input) {
 			return;
 		}
+		var query = input.value.trim().toLowerCase();
+		var rows = document.querySelectorAll(rowSelector);
+		var index;
 
-		parent = document.querySelector(parentSelector);
-		if (!parent) {
-			return;
-		}
-
-		siblings = Array.prototype.slice.call(
-			document.querySelectorAll("[data-parent-checkbox=" + JSON.stringify(parentSelector) + "]")
-		);
-		checkedCount = 0;
-		indeterminateCount = 0;
-
-		for (i = 0; i < siblings.length; i++) {
-			if (siblings[i].checked) {
-				checkedCount++;
-			} else if (siblings[i].indeterminate) {
-				indeterminateCount++;
-			}
-		}
-
-		if (checkedCount === 0 && indeterminateCount === 0) {
-			parent.checked = false;
-			parent.indeterminate = false;
-		} else {
-			parent.checked = false;
-			parent.indeterminate = true;
-		}
-
-		updateAncestors(parent);
-	}
-
-	function setAllRoutes(checked) {
-		var all = Array.prototype.slice.call(
-			document.querySelectorAll("[data-dydaps-route-checkbox]")
-		);
-		var i;
-		var li;
-
-		for (i = 0; i < all.length; i++) {
-			all[i].checked = checked;
-			all[i].indeterminate = false;
-			li = all[i].closest("li");
-
-			if (li) {
-				li.classList.toggle(
-					"is-inherited",
-					checked && !!all[i].getAttribute("data-parent-checkbox")
-				);
-			}
-		}
-	}
-
-	function initInheritedState() {
-		var allWithParent = Array.prototype.slice.call(
-			document.querySelectorAll("[data-parent-checkbox]")
-		);
-		var i;
-		var parentSelector;
-		var parent;
-		var li;
-
-		for (i = 0; i < allWithParent.length; i++) {
-			li = allWithParent[i].closest("li");
-			if (!li) {
-				continue;
-			}
-
-			parentSelector = allWithParent[i].getAttribute("data-parent-checkbox");
-			parent = document.querySelector(parentSelector);
-
-			if (parent && parent.checked && allWithParent[i].checked) {
-				li.classList.add("is-inherited");
-			}
-		}
-
-		for (i = allWithParent.length - 1; i >= 0; i--) {
-			if (!allWithParent[i].checked && !allWithParent[i].indeterminate) {
-				continue;
-			}
-
-			parentSelector = allWithParent[i].getAttribute("data-parent-checkbox");
-			parent = document.querySelector(parentSelector);
-
-			if (parent && !parent.checked) {
-				parent.indeterminate = true;
-			}
+		for (index = 0; index < rows.length; index++) {
+			var text = rows[index].getAttribute("data-search") || "";
+			rows[index].hidden = query !== "" && text.indexOf(query) === -1;
 		}
 	}
 
 	document.addEventListener("click", function (event) {
+		var tab = event.target.closest("[role=tab]");
+		var tabLink = event.target.closest("[data-dydaps-tab-link]");
 		var copyButton = event.target.closest("[data-dydaps-copy-target]");
-		var toggleButton;
-		var resetLabel;
-		var text;
-		var target;
 
+		if (tab) {
+			setActiveTab(tab);
+			return;
+		}
+		if (tabLink) {
+			var targetTab = document.getElementById("dydaps-tab-" + tabLink.getAttribute("data-dydaps-tab-link"));
+			if (targetTab) {
+				setActiveTab(targetTab);
+				targetTab.focus();
+			}
+		}
 		if (copyButton) {
-			target = document.querySelector(copyButton.getAttribute("data-dydaps-copy-target"));
-			if (target && navigator.clipboard && window.dydapsApiProtectionAdmin) {
-				text = target.value || target.textContent || "";
-				resetLabel = copyButton.getAttribute("data-dydaps-default-label") || copyButton.textContent;
-				navigator.clipboard.writeText(text.trim()).then(function () {
+			var target = document.querySelector(copyButton.getAttribute("data-dydaps-copy-target"));
+			if (target && window.dydapsApiProtectionAdmin) {
+				var defaultLabel = copyButton.getAttribute("data-dydaps-default-label") || copyButton.textContent;
+				copyText(target).then(function () {
 					copyButton.textContent = window.dydapsApiProtectionAdmin.copiedLabel;
 					window.clearTimeout(copyButton._dydapsCopyTimer);
 					copyButton._dydapsCopyTimer = window.setTimeout(function () {
-						copyButton.textContent = resetLabel;
+						copyButton.textContent = defaultLabel;
 					}, 1600);
 				});
 			}
+		}
+	});
+
+	document.addEventListener("keydown", function (event) {
+		var tab = event.target.closest("[role=tab]");
+		if (!tab) {
 			return;
 		}
+		var tabs = Array.prototype.slice.call(document.querySelectorAll("[role=tab]"));
+		var index = tabs.indexOf(tab);
+		if (event.key === "ArrowRight") {
+			index = (index + 1) % tabs.length;
+		} else if (event.key === "ArrowLeft") {
+			index = (index + tabs.length - 1) % tabs.length;
+		} else if (event.key === "Home") {
+			index = 0;
+		} else if (event.key === "End") {
+			index = tabs.length - 1;
+		} else {
+			return;
+		}
+		event.preventDefault();
+		setActiveTab(tabs[index]);
+		tabs[index].focus();
+	});
 
-		toggleButton = event.target.closest("[data-dydaps-toggle-all]");
-		if (toggleButton) {
-			setAllRoutes(toggleButton.getAttribute("data-dydaps-toggle-all") === "check");
+	document.addEventListener("input", function (event) {
+		if (event.target.matches("[data-dydaps-log-search]")) {
+			filterLogs();
+		} else if (event.target.matches("[data-dydaps-endpoint-search]")) {
+			filterRows("[data-dydaps-endpoint-search]", "[data-dydaps-endpoint-row]");
 		}
 	});
 
 	document.addEventListener("change", function (event) {
-		var checkbox = event.target;
-
-		if (checkbox.type !== "checkbox" || !checkbox.hasAttribute("data-dydaps-route-checkbox")) {
-			return;
-		}
-
-		applyToDescendants(checkbox, checkbox.checked);
-		updateAncestors(checkbox);
-	});
-
-	document.addEventListener("input", function (event) {
-		var search = event.target;
-		var query;
-		var rows;
-		var i;
-		if (!search.matches("[data-dydaps-namespace-search]")) {
-			return;
-		}
-		query = search.value.trim().toLowerCase();
-		rows = document.querySelectorAll("[data-dydaps-namespace-row]");
-		for (i = 0; i < rows.length; i++) {
-			rows[i].hidden = query !== "" && rows[i].getAttribute("data-search").indexOf(query) === -1;
+		if (event.target.matches("[data-event-age-select]")) {
+			var selectedOption = event.target.options[event.target.selectedIndex];
+			var eventCount = document.querySelector("[data-event-count]");
+			if (selectedOption && eventCount) {
+				eventCount.textContent = selectedOption.getAttribute("data-count") || "0";
+			}
 		}
 	});
-
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", initInheritedState);
-	} else {
-		initInheritedState();
-	}
 })();

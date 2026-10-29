@@ -11,13 +11,18 @@ defined( 'ABSPATH' ) || exit;
  * Route normalization and validation utilities.
  */
 final class Dydaps_Api_Route_Utils {
-	/** Normalize and validate an exact REST namespace (without route slashes). */
-	public static function normalize_namespace( $namespace ) {
-		if ( ! is_string( $namespace ) ) {
+	/**
+	 * Normalize and validate an exact REST namespace (without route slashes).
+	 *
+	 * @param string $namespace_name REST namespace.
+	 * @return string
+	 */
+	public static function normalize_namespace( $namespace_name ) {
+		if ( ! is_string( $namespace_name ) ) {
 			return '';
 		}
 
-		$namespace = trim( $namespace, " \t\n\r\0\x0B/" );
+		$namespace = trim( $namespace_name, " \t\n\r\0\x0B/" );
 		if ( '' === $namespace || strlen( $namespace ) > 200 || ! preg_match( '#^[A-Za-z0-9._~-]+(?:/[A-Za-z0-9._~-]+)*$#D', $namespace ) || false !== strpos( $namespace, '..' ) ) {
 			return '';
 		}
@@ -25,9 +30,15 @@ final class Dydaps_Api_Route_Utils {
 		return $namespace;
 	}
 
-	/** Match only an exact namespace boundary, never a similarly named one. */
-	public static function route_matches_namespace( $route, $namespace ) {
-		$namespace = self::normalize_namespace( $namespace );
+	/**
+	 * Match only an exact namespace boundary, never a similarly named one.
+	 *
+	 * @param string $route REST route.
+	 * @param string $namespace_name REST namespace.
+	 * @return bool
+	 */
+	public static function route_matches_namespace( $route, $namespace_name ) {
+		$namespace = self::normalize_namespace( $namespace_name );
 		$route     = self::normalize_route_prefix( $route );
 		if ( '' === $namespace || '' === $route ) {
 			return false;
@@ -35,6 +46,88 @@ final class Dydaps_Api_Route_Utils {
 
 		$namespace_route = '/' . $namespace;
 		return $route === $namespace_route || 0 === strpos( $route, $namespace_route . '/' );
+	}
+
+	/**
+	 * Validate one explicit anonymous exception route pattern.
+	 *
+	 * @param string $route Route pattern.
+	 * @return string
+	 */
+	public static function normalize_exception_route( $route ) {
+		if ( ! is_string( $route ) || strlen( $route ) > 300 ) {
+			return '';
+		}
+		$route = trim( $route );
+		if ( '' === $route || false !== strpos( $route, '#' ) || preg_match( '#^[a-z][a-z0-9+.-]*://#i', $route ) ) {
+			return '';
+		}
+		$route = '/' . ltrim( $route, '/' );
+		if ( 0 === strpos( $route, '/wp-json/' ) ) {
+			$route = substr( $route, 8 );
+		}
+		$route = untrailingslashit( $route );
+		if ( '' === $route || '/' === $route || false !== strpos( $route, '//' ) || false !== strpos( $route, '..' ) ) {
+			return '';
+		}
+		// Accept literal path segments and a small set of named WordPress params.
+		$segments = explode( '/', ltrim( $route, '/' ) );
+		foreach ( $segments as $segment ) {
+			if ( null !== self::get_exception_parameter_pattern( $segment ) ) {
+				continue;
+			}
+			if ( ! preg_match( '/^[A-Za-z0-9._~-]+$/D', $segment ) ) {
+				return '';
+			}
+		}
+		return '/' . implode( '/', $segments );
+	}
+
+	/**
+	 * Match an exception with an explicit HTTP method and whole route boundary.
+	 *
+	 * @param string $route Route to check.
+	 * @param string $method HTTP method.
+	 * @param array  $exception Exception definition.
+	 * @return bool
+	 */
+	public static function exception_matches( $route, $method, array $exception ) {
+		if ( ! isset( $exception['enabled'], $exception['route'], $exception['method'] )
+			|| ! in_array( $exception['enabled'], array( true, 1, '1' ), true )
+			|| ! is_string( $exception['route'] )
+			|| ! is_string( $exception['method'] )
+			|| ! is_string( $method )
+			|| strtoupper( $method ) !== $exception['method']
+		) {
+			return false;
+		}
+		$pattern = self::normalize_exception_route( $exception['route'] );
+		$route   = self::normalize_route_prefix( $route );
+		if ( '' === $pattern || '' === $route ) {
+			return false;
+		}
+		$segments         = explode( '/', trim( $pattern, '/' ) );
+		$expression_parts = array();
+		foreach ( $segments as $segment ) {
+			$parameter_pattern  = self::get_exception_parameter_pattern( $segment );
+			$expression_parts[] = null !== $parameter_pattern ? $parameter_pattern : preg_quote( $segment, '#' );
+		}
+
+		return 1 === preg_match( '#^/' . implode( '/', $expression_parts ) . '$#D', $route );
+	}
+
+	/**
+	 * Convert one whitelisted named parameter to its equivalent safe regex.
+	 *
+	 * @param string $segment Route segment.
+	 * @return string|null
+	 */
+	private static function get_exception_parameter_pattern( $segment ) {
+		if ( ! is_string( $segment ) || ! preg_match( '/^\(\?P<([A-Za-z_][A-Za-z0-9_]*)>\[((?:\\\\d|\\\\w-|A-Za-z0-9_-|a-zA-Z0-9_-|0-9))\]\+\)$/D', $segment, $matches ) ) {
+			return null;
+		}
+
+		return in_array( $matches[2], array( '\\d', '0-9' ), true ) ? '[0-9]+' : '[A-Za-z0-9_-]+';
 	}
 
 	/**
@@ -128,10 +221,10 @@ final class Dydaps_Api_Route_Utils {
 		$lines = preg_split( '/\r\n|\r|\n/', (string) $input );
 
 		if ( ! is_array( $lines ) ) {
-			return [];
+			return array();
 		}
 
-		$normalized = [];
+		$normalized = array();
 
 		foreach ( $lines as $line ) {
 			$normalized_line = self::normalize_route_prefix( $line );
@@ -162,7 +255,7 @@ final class Dydaps_Api_Route_Utils {
 	 * @return string[]
 	 */
 	public static function get_custom_routes( array $effective_prefixes, array $default_prefixes ) {
-		$known_routes = array_merge( $default_prefixes, [ '/', '/wp/v2' ] );
+		$known_routes = array_merge( $default_prefixes, array( '/', '/wp/v2' ) );
 
 		return array_values( array_diff( $effective_prefixes, $known_routes ) );
 	}

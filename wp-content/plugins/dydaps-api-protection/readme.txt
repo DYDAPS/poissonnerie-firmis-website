@@ -4,11 +4,11 @@ Tags: rest api, api key, security, headless, protection
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header.
+Protect anonymous WordPress REST API access while preserving native WordPress authorization.
 
 == Description ==
 
@@ -22,10 +22,14 @@ Features:
 * Block the full REST API by default when needed
 * Optionally allow same-process WordPress rest_do_request() calls (disabled by default)
 * Manage exact REST namespace exceptions without bypassing native permissions
+* Browse registered endpoints and manage method-specific route exceptions
+* Diagnose denials with optional bounded logging, disabled by default
 * Use a lightweight admin interface with no external dependencies
 * Ship with English and French translations
 
-Every protected request must include the `X-DYDAPS-API-Key` header.
+Anonymous clients must include the `X-DYDAPS-API-Key` header for protected routes.
+
+Valid WordPress authentication is also accepted and endpoint permission callbacks remain authoritative. A DYDAPS API key does not grant WordPress user capabilities. New installations deny anonymous REST requests by default; upgrades preserve the previous saved policy.
 
 Same-process internal requests through WordPress `rest_do_request()` are subject to DYDAPS rules unless explicitly allowed. HTTP loopbacks remain protected because they cannot be safely distinguished from external requests. Namespace exceptions bypass DYDAPS blocking only; authentication handling is unchanged and endpoint permission callbacks still run. WordPress does not perform HTTP authentication for direct `rest_do_request()` calls; callers supply the current-user context.
 
@@ -52,6 +56,14 @@ No. Only a SHA-256 hash is stored. The plain key is shown once when it is genera
 
 == Changelog ==
 
+= 1.4.0 =
+
+* Preserved WordPress authentication and native endpoint permission checks.
+* Enabled strict anonymous REST protection by default for new installations.
+* Added method-specific anonymous REST route exceptions.
+* Preserved existing API keys and saved settings during upgrades.
+* Added registered endpoint inventory, visual exception management, optional bounded denial logs, and legacy policy warnings.
+
 = 1.2.0 =
 
 * Added a lightweight autoloader and cleaned the internal plugin structure.
@@ -73,3 +85,8 @@ No. Only a SHA-256 hash is stored. The plain key is shown once when it is genera
 
 * Initial release.
 * Added secret token protection for targeted `wp-json` endpoints.
+
+= 1.4.1 =
+* Simplified the protection administration page and clarified REST denial diagnostics.
+* Added paginated activity logs with filtering, bounded retention, and manual cleanup.
+* Added a read-only configuration analysis and explicit strict-mode confirmation.

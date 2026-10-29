@@ -1,25 +1,252 @@
-.dydaps-api-protection-card{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:24px;margin-top:20px;max-width:1100px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.dydaps-api-protection-intro{display:grid;grid-template-columns:2fr 1fr;gap:24px}
-.dydaps-api-protection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:20px}
-.dydaps-api-protection-panel{border:1px solid #dcdcde;border-radius:8px;padding:16px;background:#f6f7f7}
-.dydaps-api-protection-code{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.dydaps-api-protection-value{display:block;width:100%;max-width:100%;padding:10px 12px;background:#fff;border:1px solid #c3c4c7;border-radius:6px;font-family:monospace;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;box-sizing:border-box}
-.dydaps-api-protection-panel code{display:block;max-width:100%;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap}
-.dydaps-api-protection-warning{border-left:4px solid #dba617;background:#fff8e5;padding:16px;margin:20px 0}
-.dydaps-api-protection-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
-.dydaps-api-protection-routes code{display:block;margin:0 0 8px}
-.dydaps-api-protection-tree{margin:16px 0;padding:16px;border:1px solid #dcdcde;border-radius:8px;background:#f6f7f7}
-.dydaps-api-protection-tree ul{margin:0;padding-left:24px;list-style:none}
-.dydaps-api-protection-tree > ul{padding-left:0}
-.dydaps-api-protection-tree li{margin:8px 0}
-.dydaps-api-protection-tree label{display:flex;gap:8px;align-items:center;cursor:pointer;padding:4px 6px;border-radius:4px;transition:background .1s}
-.dydaps-api-protection-tree label:hover{background:rgba(0,0,0,.04)}
-.dydaps-api-protection-tree code{display:inline-block;font-size:13px}
-.dydaps-api-protection-tree li.is-inherited > label{background:#eef6ff;border-left:3px solid #2271b1;margin-left:-6px;padding-left:6px}
-.dydaps-api-protection-inherited{color:#2271b1;font-size:11px;font-style:italic;margin-left:4px}
-.dydaps-api-protection-option{border:1px solid #dcdcde;border-radius:8px;padding:16px;margin:16px 0;background:#fff}
-.dydaps-api-protection-textarea{width:100%;min-height:140px;font-family:monospace}
-.dydaps-api-protection-toggle-actions{display:flex;gap:8px;align-items:center;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #dcdcde}
-.dydaps-api-protection-toggle-actions .button{font-size:12px}
-@media (max-width:782px){.dydaps-api-protection-intro{grid-template-columns:1fr}}
-.dydaps-api-protection-table-wrap{max-height:560px;overflow:auto;border:1px solid #c3c4c7}.dydaps-api-protection-table-wrap table{border:0}.dydaps-api-protection-table-wrap th{position:sticky;top:0;background:#f6f7f7;z-index:1}.dydaps-api-protection-table-wrap td{vertical-align:top}.dydaps-api-protection-table-wrap details{margin-top:6px}.dydaps-api-protection-table-wrap details ul{max-height:180px;overflow:auto;margin:6px 0;padding-left:18px}.dydaps-api-protection-table-wrap code{overflow-wrap:anywhere}
+.dydaps-admin {
+	max-width: 1200px;
+}
+
+.dydaps-admin > section {
+	max-width: none;
+	margin: 0 0 18px;
+	padding: 22px 24px;
+	border-radius: 6px;
+}
+
+.dydaps-api-protection-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+}
+
+.dydaps-admin h2 {
+	margin-top: 0;
+	font-size: 18px;
+}
+
+.dydaps-primary {
+	border-left: 4px solid #2271b1;
+}
+
+.dydaps-status {
+	margin: 10px 0;
+	font-size: 20px;
+}
+
+.dydaps-state-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 5px 11px;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.dydaps-state-badge--configured {
+	border-color: #68a77d;
+	background: #edfaef;
+	color: #14532d;
+}
+
+.dydaps-state-badge--customized {
+	border-color: #72aee6;
+	background: #f0f6fc;
+	color: #135e96;
+}
+
+.dydaps-state-badge--needs_configuration {
+	border-color: #dba617;
+	background: #fcf9e8;
+	color: #6e4d00;
+}
+
+.dydaps-assistant {
+	margin-top: 18px;
+	padding: 16px;
+	border-left: 4px solid #dba617;
+	background: #f6f7f7;
+}
+
+.dydaps-tabs {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 18px;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+.dydaps-tabs [role="tab"] {
+	padding: 10px 14px;
+	border: 0;
+	border-bottom: 3px solid transparent;
+	background: transparent;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.dydaps-tabs [role="tab"][aria-selected="true"] {
+	border-bottom-color: #2271b1;
+	color: #135e96;
+}
+
+.dydaps-tabs [role="tab"]:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.dydaps-advanced [role="tabpanel"] {
+	padding: 4px 0;
+}
+
+.dydaps-setting {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 14px 0;
+}
+
+.dydaps-setting input {
+	margin-top: 3px;
+}
+
+.dydaps-setting small {
+	display: block;
+	margin-top: 3px;
+	color: #646970;
+}
+
+.dydaps-inline-option {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin: 8px 0;
+	overflow-wrap: anywhere;
+}
+
+.dydaps-public-confirm {
+	display: block;
+	margin-top: 16px;
+	padding: 12px;
+	border-left: 4px solid #dba617;
+	background: #fcf9e8;
+}
+
+.dydaps-protected-route-options {
+	margin: 16px 0;
+	padding: 12px 16px;
+	border: 1px solid #dcdcde;
+}
+
+.dydaps-api-protection-textarea {
+	width: 100%;
+	min-height: 112px;
+	font-family: monospace;
+}
+
+.dydaps-api-protection-value {
+	box-sizing: border-box;
+	max-width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+	font-family: monospace;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.dydaps-admin pre {
+	overflow: auto;
+}
+
+.dydaps-admin pre code {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.dydaps-api-protection-filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: 12px;
+	margin: 12px 0;
+}
+
+.dydaps-api-protection-filters label {
+	display: grid;
+	gap: 4px;
+}
+
+.dydaps-api-protection-table-wrap {
+	max-width: 100%;
+	max-height: 560px;
+	overflow: auto;
+	border: 1px solid #c3c4c7;
+}
+
+.dydaps-api-protection-table-wrap table {
+	min-width: 680px;
+	border: 0;
+}
+
+.dydaps-api-protection-table-wrap th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background: #f6f7f7;
+}
+
+.dydaps-api-protection-table-wrap td {
+	vertical-align: top;
+}
+
+.dydaps-api-protection-table-wrap code,
+.dydaps-route-list li {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.dydaps-route-list {
+	max-height: 320px;
+	overflow: auto;
+	padding-left: 20px;
+}
+
+.dydaps-route-list li {
+	margin: 6px 0;
+}
+
+.dydaps-key-action {
+	display: inline-block;
+	margin: 12px 12px 0 0;
+}
+
+.dydaps-namespace-routes {
+	margin: 0 0 12px 24px;
+}
+
+@media (max-width: 600px) {
+	.dydaps-admin > section {
+		margin-right: 0;
+		margin-left: -8px;
+		padding: 16px;
+	}
+
+	.dydaps-tabs {
+		overflow-x: auto;
+	}
+
+	.dydaps-tabs [role="tab"] {
+		flex: 1 0 auto;
+		padding: 10px 8px;
+	}
+
+	.dydaps-api-protection-table-wrap {
+		overflow-x: auto;
+	}
+
+	.dydaps-primary .button-hero {
+		height: auto;
+		min-height: 48px;
+		padding: 12px;
+		line-height: 1.4;
+		white-space: normal;
+	}
+}

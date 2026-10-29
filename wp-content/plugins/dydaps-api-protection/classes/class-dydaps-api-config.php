@@ -35,13 +35,13 @@ final class Dydaps_Api_Config {
 	 *
 	 * @var string[]
 	 */
-	public const DEFAULT_PROTECTED_ROUTE_PREFIXES = [
+	public const DEFAULT_PROTECTED_ROUTE_PREFIXES = array(
 		'/wp/v2/posts',
 		'/wp/v2/pages',
 		'/wp/v2/media',
 		'/wp/v2/categories',
 		'/wp/v2/tags',
-	];
+	);
 
 	/**
 	 * Option name: API key hash storage.
@@ -91,12 +91,24 @@ final class Dydaps_Api_Config {
 	/** Option name: explicitly allowed REST namespaces. */
 	public const OPTION_ALLOWED_REST_NAMESPACES = 'dydaps_api_allowed_rest_namespaces';
 
+	/** Option name recording the installed schema version. */
+	public const OPTION_SCHEMA_VERSION = 'dydaps_api_schema_version';
+
+	/** Option name storing method-specific anonymous REST exceptions. */
+	public const OPTION_ANONYMOUS_EXCEPTIONS  = 'dydaps_api_anonymous_exceptions';
+	public const OPTION_LOGGING_ENABLED       = 'dydaps_api_logging_enabled';
+	public const OPTION_LOG_RETENTION_DAYS    = 'dydaps_api_log_retention_days';
+	public const OPTION_LOG_MAX_EVENTS        = 'dydaps_api_log_max_events';
+	public const OPTION_SECURITY_EVENTS       = 'dydaps_api_security_events';
+	public const OPTION_EVENT_STORAGE_VERSION = 'dydaps_api_event_storage_version';
+	public const OPTION_ASSISTANT_BACKUP      = 'dydaps_api_assistant_backup';
+
 	/**
 	 * All plugin-managed option names.
 	 *
 	 * @var string[]
 	 */
-	public const OPTION_NAMES = [
+	public const OPTION_NAMES = array(
 		self::OPTION_API_KEY_HASH,
 		self::OPTION_API_KEY_CREATED_AT,
 		self::OPTION_API_KEY_LAST_ROTATED_AT,
@@ -105,7 +117,15 @@ final class Dydaps_Api_Config {
 		self::OPTION_PUBLIC_ROUTE_PREFIXES,
 		self::OPTION_ALLOW_INTERNAL_REST_REQUESTS,
 		self::OPTION_ALLOWED_REST_NAMESPACES,
-	];
+		self::OPTION_SCHEMA_VERSION,
+		self::OPTION_ANONYMOUS_EXCEPTIONS,
+		self::OPTION_LOGGING_ENABLED,
+		self::OPTION_LOG_RETENTION_DAYS,
+		self::OPTION_LOG_MAX_EVENTS,
+		self::OPTION_SECURITY_EVENTS,
+		self::OPTION_EVENT_STORAGE_VERSION,
+		self::OPTION_ASSISTANT_BACKUP,
+	);
 
 	/**
 	 * Transient name: Temporary plain key display (one-time).

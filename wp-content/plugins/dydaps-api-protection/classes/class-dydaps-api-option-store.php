@@ -18,14 +18,14 @@ final class Dydaps_Api_Option_Store {
 	 * @param string[] $default_prefixes Default value.
 	 * @return string[]
 	 */
-	public static function get_route_prefixes( $option_name, array $default_prefixes = [] ) {
+	public static function get_route_prefixes( $option_name, array $default_prefixes = array() ) {
 		$stored_value = get_option( $option_name, $default_prefixes );
 
 		if ( ! is_array( $stored_value ) ) {
 			return $default_prefixes;
 		}
 
-		$normalized_prefixes = [];
+		$normalized_prefixes = array();
 
 		foreach ( $stored_value as $stored_prefix ) {
 			$normalized_prefix = Dydaps_Api_Route_Utils::normalize_route_prefix( $stored_prefix );
@@ -55,12 +55,12 @@ final class Dydaps_Api_Option_Store {
 	 * @return string[]
 	 */
 	public static function get_namespaces( $option_name ) {
-		$value = get_option( $option_name, [] );
+		$value = get_option( $option_name, array() );
 		if ( ! is_array( $value ) ) {
-			return [];
+			return array();
 		}
 
-		$namespaces = [];
+		$namespaces = array();
 		foreach ( $value as $namespace ) {
 			$namespace = Dydaps_Api_Route_Utils::normalize_namespace( $namespace );
 			if ( '' !== $namespace ) {

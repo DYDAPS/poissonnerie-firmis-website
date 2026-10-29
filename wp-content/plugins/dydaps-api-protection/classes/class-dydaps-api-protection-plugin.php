@@ -40,6 +40,13 @@ final class Dydaps_Api_Protection_Plugin {
 	private $admin_page = null;
 
 	/**
+	 * REST denial logger.
+	 *
+	 * @var Dydaps_Api_Event_Logger|null
+	 */
+	private $event_logger = null;
+
+	/**
 	 * Get the singleton instance.
 	 *
 	 * @return self
@@ -61,21 +68,29 @@ final class Dydaps_Api_Protection_Plugin {
 	 * @return void
 	 */
 	public function run() {
+		Dydaps_Api_Activation::upgrade();
 		$this->load_textdomain();
-		add_filter( 'rest_authentication_errors', [ $this->get_rest_protection(), 'protect_routes' ], 20 );
-		add_filter( 'rest_pre_dispatch', [ $this->get_rest_protection(), 'protect_internal_dispatch' ], 20, 3 );
-		add_filter( 'plugin_action_links_' . plugin_basename( DYDAPS_API_PROTECTION_FILE ), [ $this, 'add_plugin_action_links' ] );
-		add_filter( 'all_plugins', [ $this, 'filter_plugin_row_text' ] );
+		$this->get_event_logger()->register();
+		// Run after WordPress core's cookie authentication and REST nonce check.
+		add_filter( 'rest_authentication_errors', array( $this->get_rest_protection(), 'protect_routes' ), PHP_INT_MAX );
+		add_filter( 'rest_pre_dispatch', array( $this->get_rest_protection(), 'protect_internal_dispatch' ), 20, 3 );
+		add_filter( 'plugin_action_links_' . plugin_basename( DYDAPS_API_PROTECTION_FILE ), array( $this, 'add_plugin_action_links' ) );
+		add_filter( 'all_plugins', array( $this, 'filter_plugin_row_text' ) );
 
 		if ( is_admin() ) {
-			add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
-			add_action( 'admin_enqueue_scripts', [ $this->get_admin_page(), 'enqueue_assets' ] );
-			add_action( 'admin_post_dydaps_api_protection_generate', [ $this->get_admin_page(), 'handle_generate' ] );
-			add_action( 'admin_post_dydaps_api_protection_rotate', [ $this->get_admin_page(), 'handle_rotate' ] );
-			add_action( 'admin_post_dydaps_api_protection_revoke', [ $this->get_admin_page(), 'handle_revoke' ] );
-			add_action( 'admin_post_dydaps_api_protection_save_routes', [ $this->get_admin_page(), 'handle_save_routes' ] );
-			add_action( 'admin_post_dydaps_api_protection_save_internal', [ $this->get_admin_page(), 'handle_save_internal' ] );
-			add_action( 'admin_post_dydaps_api_protection_save_namespaces', [ $this->get_admin_page(), 'handle_save_namespaces' ] );
+			add_action( 'admin_menu', array( $this, 'register_admin_menu' ) );
+			add_action( 'admin_enqueue_scripts', array( $this->get_admin_page(), 'enqueue_assets' ) );
+			add_action( 'admin_post_dydaps_api_protection_generate', array( $this->get_admin_page(), 'handle_generate' ) );
+			add_action( 'admin_post_dydaps_api_protection_rotate', array( $this->get_admin_page(), 'handle_rotate' ) );
+			add_action( 'admin_post_dydaps_api_protection_revoke', array( $this->get_admin_page(), 'handle_revoke' ) );
+			add_action( 'admin_post_dydaps_api_protection_save_routes', array( $this->get_admin_page(), 'handle_save_routes' ) );
+			add_action( 'admin_post_dydaps_api_protection_save_internal', array( $this->get_admin_page(), 'handle_save_internal' ) );
+			add_action( 'admin_post_dydaps_api_protection_save_namespaces', array( $this->get_admin_page(), 'handle_save_namespaces' ) );
+			add_action( 'admin_post_dydaps_api_protection_save_exceptions', array( $this->get_admin_page(), 'handle_save_exceptions' ) );
+			add_action( 'admin_post_dydaps_api_protection_save_logging', array( $this->get_admin_page(), 'handle_save_logging' ) );
+			add_action( 'admin_post_dydaps_api_protection_clear_logs', array( $this->get_admin_page(), 'handle_clear_logs' ) );
+			add_action( 'admin_post_dydaps_api_protection_delete_old_logs', array( $this->get_admin_page(), 'handle_delete_old_logs' ) );
+			add_action( 'admin_post_dydaps_api_protection_apply_recommendation', array( $this->get_admin_page(), 'handle_apply_recommendation' ) );
 		}
 	}
 
@@ -86,7 +101,7 @@ final class Dydaps_Api_Protection_Plugin {
 	 */
 	public function load_textdomain() {
 		load_plugin_textdomain(
-			Dydaps_Api_Config::TEXT_DOMAIN,
+			'dydaps-api-protection',
 			false,
 			dirname( plugin_basename( DYDAPS_API_PROTECTION_FILE ) ) . '/languages/'
 		);
@@ -99,11 +114,11 @@ final class Dydaps_Api_Protection_Plugin {
 	 */
 	public function register_admin_menu() {
 		add_options_page(
-			__( 'DYDAPS API Protection', Dydaps_Api_Config::TEXT_DOMAIN ),
-			__( 'DYDAPS API Protection', Dydaps_Api_Config::TEXT_DOMAIN ),
+			__( 'DYDAPS API Protection', 'dydaps-api-protection' ),
+			__( 'DYDAPS API Protection', 'dydaps-api-protection' ),
 			'manage_options',
 			Dydaps_Api_Config::ADMIN_PAGE_SLUG,
-			[ $this->get_admin_page(), 'render' ]
+			array( $this->get_admin_page(), 'render' )
 		);
 	}
 
@@ -117,7 +132,7 @@ final class Dydaps_Api_Protection_Plugin {
 		$settings_link = sprintf(
 			'<a href="%1$s">%2$s</a>',
 			esc_url( admin_url( 'options-general.php?page=' . Dydaps_Api_Config::ADMIN_PAGE_SLUG ) ),
-			esc_html__( 'Settings', Dydaps_Api_Config::TEXT_DOMAIN )
+			esc_html__( 'Settings', 'dydaps-api-protection' )
 		);
 
 		array_unshift( $links, $settings_link );
@@ -142,8 +157,8 @@ final class Dydaps_Api_Protection_Plugin {
 			return $plugins;
 		}
 
-		$plugins[ $plugin_basename ]['Name']        = __( 'DYDAPS API Protection', Dydaps_Api_Config::TEXT_DOMAIN );
-		$plugins[ $plugin_basename ]['Description'] = __( 'Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header.', Dydaps_Api_Config::TEXT_DOMAIN );
+		$plugins[ $plugin_basename ]['Name']        = __( 'DYDAPS API Protection', 'dydaps-api-protection' );
+		$plugins[ $plugin_basename ]['Description'] = __( 'Protect anonymous WordPress REST API access with configurable exceptions and API keys.', 'dydaps-api-protection' );
 
 		return $plugins;
 	}
@@ -180,7 +195,8 @@ final class Dydaps_Api_Protection_Plugin {
 				Dydaps_Api_Config::OPTION_BLOCK_ALL_REST_API,
 				Dydaps_Api_Config::OPTION_PUBLIC_ROUTE_PREFIXES,
 				Dydaps_Api_Config::OPTION_ALLOW_INTERNAL_REST_REQUESTS,
-				Dydaps_Api_Config::OPTION_ALLOWED_REST_NAMESPACES
+				Dydaps_Api_Config::OPTION_ALLOWED_REST_NAMESPACES,
+				$this->get_event_logger()
 			);
 		}
 
@@ -202,10 +218,19 @@ final class Dydaps_Api_Protection_Plugin {
 				Dydaps_Api_Config::OPTION_BLOCK_ALL_REST_API,
 				Dydaps_Api_Config::OPTION_PUBLIC_ROUTE_PREFIXES,
 				Dydaps_Api_Config::OPTION_ALLOW_INTERNAL_REST_REQUESTS,
-				Dydaps_Api_Config::OPTION_ALLOWED_REST_NAMESPACES
+				Dydaps_Api_Config::OPTION_ALLOWED_REST_NAMESPACES,
+				$this->get_event_logger()
 			);
 		}
 
 		return $this->admin_page;
+	}
+
+	/** Get the event logger. */
+	private function get_event_logger() {
+		if ( null === $this->event_logger ) {
+			$this->event_logger = new Dydaps_Api_Event_Logger();
+		}
+		return $this->event_logger;
 	}
 }

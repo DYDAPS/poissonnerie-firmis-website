@@ -99,11 +99,11 @@ final class Dydaps_Api_Key_Service {
 	 */
 	public function revoke_key() {
 		Dydaps_Api_Option_Store::delete_many(
-			[
+			array(
 				$this->hash_option_name,
 				$this->created_at_option_name,
 				$this->last_rotated_at_option_name,
-			]
+			)
 		);
 	}
 

@@ -1,240 +1,743 @@
+# Copyright (C) 2026 DYDAPS
+# This file is distributed under the same license as the DYDAPS API Protection plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: DYDAPS API Protection 1.3.0\n"
-"Report-Msgid-Bugs-To: https://dydaps.com/\n"
-"POT-Creation-Date: 2026-05-20 00:00+0000\n"
+"Project-Id-Version: DYDAPS API Protection 1.4.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/work\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-29T19:04:53+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: dydaps-api-protection\n"
 
+#. Plugin Name of the plugin
+#: dydaps-api-protection.php
+#: classes/class-dydaps-api-protection-plugin.php:117
+#: classes/class-dydaps-api-protection-plugin.php:118
+#: classes/class-dydaps-api-protection-plugin.php:160
 msgid "DYDAPS API Protection"
 msgstr ""
 
-msgid "Settings"
+#. Plugin URI of the plugin
+#: dydaps-api-protection.php
+msgid "https://dydaps.com/"
 msgstr ""
 
-msgid "Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header."
+#. Description of the plugin
+#: dydaps-api-protection.php
+#: classes/class-dydaps-api-protection-plugin.php:161
+msgid "Protect anonymous WordPress REST API access with configurable exceptions and API keys."
 msgstr ""
 
-msgid "A valid API key is required to access this endpoint."
+#. Author of the plugin
+#: dydaps-api-protection.php
+msgid "DYDAPS"
 msgstr ""
 
-msgid "This REST API endpoint is blocked."
-msgstr ""
-
-msgid "Copied"
-msgstr ""
-
-msgid "Protect selected WordPress REST API routes by requiring a secret API key in the X-DYDAPS-API-Key header."
-msgstr ""
-
-msgid "Full blocking is enabled: public exceptions stay open, selected routes require the API key, and all other REST routes are blocked."
-msgstr ""
-
-msgid "Only selected routes require the API key. Other REST API routes remain public unless you enable full blocking."
-msgstr ""
-
-msgid "Protected routes"
-msgstr ""
-
-msgid "Public exceptions"
-msgstr ""
-
-msgid "Your new API key is shown only once."
-msgstr ""
-
-msgid "Copy it now and store it securely. The plain key is never stored and cannot be retrieved later."
-msgstr ""
-
-msgid "Copy API Key"
-msgstr ""
-
-msgid "Protection status"
-msgstr ""
-
-msgid "Active"
-msgstr ""
-
-msgid "Inactive"
-msgstr ""
-
-msgid "Blocking mode"
-msgstr ""
-
-msgid "Full REST API block"
-msgstr ""
-
-msgid "Selected routes only"
-msgstr ""
-
-msgid "Header name"
-msgstr ""
-
-msgid "Copy Header"
-msgstr ""
-
-msgid "Stored key preview"
-msgstr ""
-
-msgid "No key generated yet."
-msgstr ""
-
-msgid "Created at"
-msgstr ""
-
-msgid "Last rotation"
-msgstr ""
-
-msgid "Revoke the current API key? This will immediately block requests using the old key."
-msgstr ""
-
-msgid "Revoke API Key"
-msgstr ""
-
-msgid "Generate API Key"
-msgstr ""
-
-msgid "Rotate API Key"
-msgstr ""
-
-msgid "Integration examples"
-msgstr ""
-
-msgid "Every protected request must include the exact custom header shown above."
-msgstr ""
-
-msgid "cURL"
-msgstr ""
-
-msgid "You are not allowed to manage this setting."
-msgstr ""
-
-msgid "Access denied"
-msgstr ""
-
-msgid "The request action is invalid."
-msgstr ""
-
-msgid "Invalid request"
-msgstr ""
-
-msgid "Not available"
-msgstr ""
-
-msgid "Protected route configuration"
-msgstr ""
-
-msgid "Choose the REST API prefixes that must require the API key. You can keep the default WordPress content routes and add broader prefixes such as /wp/v2/ or custom plugin namespaces if needed."
-msgstr ""
-
-msgid "Block the whole REST API by default"
-msgstr ""
-
-msgid "When enabled, public exceptions stay open, selected routes require the API key, and every other REST API route is blocked."
-msgstr ""
-
-msgid "(all REST API endpoints)"
-msgstr ""
-
-msgid "(all WordPress v2 content endpoints)"
-msgstr ""
-
-msgid "included by parent"
-msgstr ""
-
-msgid "Additional custom prefixes"
-msgstr ""
-
-msgid "Add one REST route prefix per line, for example /wc/v3/ or /my-plugin/v1/. Invalid or empty lines are ignored."
-msgstr ""
-
-msgid "Add one REST URL or route prefix per line that must stay public, even when full blocking is enabled or when it falls under a protected parent route."
-msgstr ""
-
-msgid "Save protected routes"
-msgstr ""
-
-msgid "Check all"
-msgstr ""
-
-msgid "Uncheck all"
-msgstr ""
-
+#. translators: %1$s: Required WordPress version, %2$s: Current WordPress version
+#: classes/class-dydaps-api-activation.php:30
+#, php-format
 msgid "DYDAPS API Protection requires WordPress %1$s or later. You are running WordPress %2$s."
 msgstr ""
 
+#. translators: %1$s: Required PHP version, %2$s: Current PHP version
+#: classes/class-dydaps-api-activation.php:42
+#, php-format
 msgid "DYDAPS API Protection requires PHP %1$s or later. You are running PHP %2$s."
 msgstr ""
 
-msgid "Internal WordPress requests"
+#: classes/class-dydaps-api-admin-page.php:131
+msgid "Copied"
 msgstr ""
 
-msgid "Allow internal WordPress requests"
+#: classes/class-dydaps-api-admin-page.php:180
+msgid "Configured"
 msgstr ""
 
-msgid "When enabled, only same-process requests dispatched through WordPress rest_do_request() bypass DYDAPS rules. HTTP loopbacks cannot be safely distinguished from external callers and remain protected. WordPress authentication and route permission callbacks are still enforced. Disabled by default."
+#: classes/class-dydaps-api-admin-page.php:181
+msgid "Customized"
 msgstr ""
 
-msgid "Save internal request setting"
+#: classes/class-dydaps-api-admin-page.php:182
+msgid "Needs configuration"
 msgstr ""
 
-msgid "REST namespace exceptions"
+#: classes/class-dydaps-api-admin-page.php:187
+msgid "REST API Protection"
 msgstr ""
 
-msgid "An allowed namespace is exempt only from DYDAPS blocking. WordPress authentication and each endpoint permission_callback still apply. Ownership is shown only when it can be inferred from registered callback files; otherwise it is unknown."
+#: classes/class-dydaps-api-admin-page.php:191
+msgid "Configuration applied successfully. Your site is now using the recommended protection settings. Previous public access rules have been removed."
 msgstr ""
 
-msgid "Search namespaces and endpoints"
+#: classes/class-dydaps-api-admin-page.php:195
+#: classes/class-dydaps-api-admin-page.php:243
+msgid "Your site is already configured correctly. No changes are needed."
 msgstr ""
 
-msgid "Namespace"
+#: classes/class-dydaps-api-admin-page.php:200
+msgid "Site protection"
 msgstr ""
 
-msgid "Associated extension"
+#: classes/class-dydaps-api-admin-page.php:202
+msgid "Anonymous REST access is blocked by default. WordPress sign-in and each route permission remain in control."
 msgstr ""
 
+#: classes/class-dydaps-api-admin-page.php:202
+msgid "Only selected routes are protected. Other REST routes may still be accessible to visitors."
+msgstr ""
+
+#. translators: %d: Count of public access rules.
+#: classes/class-dydaps-api-admin-page.php:206
+#, php-format
+msgid "%d public access rules need your review."
+msgstr ""
+
+#. translators: %d: Count of public access rules.
+#: classes/class-dydaps-api-admin-page.php:206
+msgid "Review advanced settings"
+msgstr ""
+
+#. translators: %d: Count of public access rules.
+#: classes/class-dydaps-api-admin-page.php:207
+msgid "Check and configure my website"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:209
+msgid "Website check"
+msgstr ""
+
+#. translators: %1$d: REST endpoint count; %2$d: active plugin count.
+#: classes/class-dydaps-api-admin-page.php:210
+#, php-format
+msgid "Checked %1$d registered REST routes and %2$d active plugins."
+msgstr ""
+
+#. translators: %d: number of public access rules removed by the recommendation.
+#: classes/class-dydaps-api-admin-page.php:211
+#, php-format
+msgid "The recommendation will block anonymous access by default and remove %d existing public route, method, and namespace rules."
+msgstr ""
+
+#. translators: %d: number of public access rules removed by the recommendation.
+#: classes/class-dydaps-api-admin-page.php:212
+msgid "No plugin is trusted automatically. Some visitor features may need a precise exception after you test them. WordPress authentication and native route permissions are unchanged."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:216
+msgid "Active plugins"
+msgstr ""
+
+#. translators: %d: Number of non-core REST routes to review.
+#: classes/class-dydaps-api-admin-page.php:230
+#, php-format
+msgid "Review %d extension routes manually"
+msgstr ""
+
+#. translators: %d: Number of non-core REST routes to review.
+#: classes/class-dydaps-api-admin-page.php:230
+msgid "Route discovery cannot confirm whether public features work. No plugin routes will be opened automatically."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:239
+msgid "I understand public REST access rules will be removed."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:239
+msgid "Apply recommended configuration"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:247
+msgid "Activity log"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:247
+msgid "API access denials"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:249
+msgid "The activity log was cleared."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:251
+msgid "Older activity events were deleted."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:253
+msgid "From"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:253
+msgid "To"
+msgstr ""
+
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:253
+#: classes/class-dydaps-api-admin-page.php:263
+#: classes/class-dydaps-api-admin-page.php:303
+msgid "Method"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:253
+msgid "All methods"
+msgstr ""
+
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:257
+#: classes/class-dydaps-api-admin-page.php:263
 msgid "Status"
 msgstr ""
 
-msgid "Authorization"
+#: classes/class-dydaps-api-admin-page.php:257
+msgid "All statuses"
 msgstr ""
 
-msgid "Allowed"
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:257
+#: classes/class-dydaps-api-admin-page.php:263
+msgid "Origin of refusal"
 msgstr ""
 
-msgid "Protected"
+#: classes/class-dydaps-api-admin-page.php:257
+msgid "All origins"
 msgstr ""
 
-msgid "Endpoints"
+#: classes/class-dydaps-api-admin-page.php:261
+msgid "Filter"
 msgstr ""
 
-msgid "Allow"
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:262
+#, php-format
+msgid "Page %1$d of %2$d · %3$d events"
 msgstr ""
 
-msgid "Keep authorization"
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:263
+msgid "Date and time"
 msgstr ""
 
-msgid "Unknown"
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:263
+msgid "Requested route"
 msgstr ""
 
-msgid "Multiple owners"
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:263
+msgid "Reason for blocking"
 msgstr ""
 
+#. translators: %1$d: current page; %2$d: total pages; %3$d: total events.
+#: classes/class-dydaps-api-admin-page.php:263
+msgid "Authentication context"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:274
+msgid "No API access denials match these filters."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:283
+msgid "Previous"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:287
+msgid "Next"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:289
+msgid "Delete events older than the selected period?"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:289
+msgid "Delete events older than"
+msgstr ""
+
+#. translators: %d: Number of days.
+#: classes/class-dydaps-api-admin-page.php:293
+#: classes/class-dydaps-api-admin-page.php:336
+#, php-format
+msgid "%d days"
+msgstr ""
+
+#. translators: %d: Number of days.
+#: classes/class-dydaps-api-admin-page.php:293
+msgid "matching events"
+msgstr ""
+
+#. translators: %d: Number of days.
+#: classes/class-dydaps-api-admin-page.php:293
+msgid "Delete old events"
+msgstr ""
+
+#. translators: %d: Number of days.
+#: classes/class-dydaps-api-admin-page.php:293
+msgid "This permanently deletes all recorded activity events. It does not change API keys or protection settings. Continue?"
+msgstr ""
+
+#. translators: %d: Number of days.
+#: classes/class-dydaps-api-admin-page.php:293
+msgid "Clear activity log"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:296
+#: classes/class-dydaps-api-admin-page.php:297
+msgid "Advanced settings"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:297
+msgid "Protection"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:297
+msgid "Exceptions"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:297
+msgid "Logging"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:298
+msgid "Block anonymous REST requests by default"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:298
+msgid "WordPress authentication and endpoint permissions continue to apply."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:298
+msgid "Allow same-process WordPress REST dispatch"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:298
+msgid "Native route permission checks still run. HTTP loopback requests remain protected."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:298
+msgid "WordPress routes requiring an API client key"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:302
+msgid "Additional protected route prefixes"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:302
+msgid "Save protection settings"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:303
+msgid "A public exception only removes this protection rule. WordPress login and native endpoint permissions remain active."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:303
+msgid "REST route"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:303
+msgid "Description"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:303
+msgid "Enabled"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:303
+msgid "Remove"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:307
+msgid "Remove exception"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:307
+msgid "New exception"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:307
+msgid "Enabling a rule makes that route and method reachable to anonymous clients. Review carefully before saving."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:307
+msgid "Broad legacy namespace permissions"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:311
+msgid "Each selected namespace opens every matching route for anonymous requests. Remove a selection to close it."
+msgstr ""
+
+#. translators: %d: Route count.
+#: classes/class-dydaps-api-admin-page.php:315
+#, php-format
+msgid "Show %d affected routes"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:323
 msgid "Not currently registered"
 msgstr ""
 
-msgid "No registered REST namespaces were found."
+#: classes/class-dydaps-api-admin-page.php:323
+msgid "Earlier public route permissions"
 msgstr ""
 
-msgid "Save namespace exceptions"
+#: classes/class-dydaps-api-admin-page.php:323
+msgid "These older route prefixes may match several routes. Uncheck an item to remove it."
 msgstr ""
 
-msgid "Settings saved."
+#: classes/class-dydaps-api-admin-page.php:327
+msgid "I confirm that enabled rules and selected namespaces allow anonymous API requests."
 msgstr ""
 
-msgid "When enabled, only same-process requests dispatched through WordPress rest_do_request() bypass DYDAPS rules. HTTP loopbacks cannot be safely distinguished from external callers and remain protected. Route permission callbacks are left unchanged. WordPress does not perform HTTP authentication for direct rest_do_request() calls; the caller supplies the current-user context. Disabled by default."
+#: classes/class-dydaps-api-admin-page.php:327
+msgid "Save exceptions"
 msgstr ""
 
-msgid "An allowed namespace is exempt only from DYDAPS blocking. Authentication handling is left unchanged, and each endpoint permission_callback still runs. Ownership is shown only when it can be inferred from registered callback files; otherwise it is unknown."
+#: classes/class-dydaps-api-admin-page.php:327
+msgid "Registered route inventory"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:327
+msgid "Search routes"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:332
+msgid "Record API access denials"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:332
+msgid "Credentials, cookies, nonces and request bodies are never saved."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:332
+msgid "Retention"
+msgstr ""
+
+#. translators: %d: Number of days.
+#: classes/class-dydaps-api-admin-page.php:336
+msgid "Maximum saved entries"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:340
+msgid "Save logging settings"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:343
+msgid "API keys"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:343
+msgid "An API client key identifies a client only. It does not sign in a WordPress user or grant WordPress capabilities."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:347
+msgid "Copy this key now. It will only be shown once."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:347
+msgid "Copy key"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:348
+msgid "Stored key"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:348
+msgid "No key generated"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:352
+msgid "Generate a replacement key"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:352
+msgid "Revoke the current API key?"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:352
+msgid "Revoke key"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:356
+msgid "Generate an API key"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:358
+msgid "Integration examples"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:358
+msgid "Replace YOUR_API_KEY with the key above. The key does not bypass WordPress authentication or route permissions."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:358
+msgid "cURL"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:358
+msgid "Copy example"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:358
+msgid "JavaScript"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:358
+msgid "Copy JavaScript example"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:491
+msgid "Confirm that you understand these exceptions allow anonymous API requests before saving."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:491
+#: classes/class-dydaps-api-admin-page.php:567
+msgid "Confirmation required"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:540
+msgid "Choose a supported age before deleting events."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:540
+#: classes/class-dydaps-api-admin-page.php:1105
+msgid "Invalid request"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:567
+msgid "Confirm the recommended change before applying it."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:570
+msgid "The protection settings changed after analysis. Run the check again before applying it."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:570
+msgid "Settings changed"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:580
+msgid "The recommended configuration could not be verified after saving. Review your settings and try again."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:580
+msgid "Configuration not confirmed"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:721
+#: classes/class-dydaps-api-admin-page.php:1016
+#: classes/class-dydaps-api-namespace-registry.php:194
+msgid "Unknown"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:901
+msgid "Anonymous access remains open for routes outside the selected protected prefixes."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:904
+msgid "No saved strict protection value exists; this legacy installation retains its prior open-by-default behavior."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:907
+msgid "Routes that require an API client key are configured, but no key has been generated."
+msgstr ""
+
+#. translators: %s is a saved public REST route prefix.
+#: classes/class-dydaps-api-admin-page.php:912
+#, php-format
+msgid "Legacy public route prefix %s may expose multiple endpoints and methods."
+msgstr ""
+
+#. translators: %s is a saved public REST route prefix.
+#: classes/class-dydaps-api-admin-page.php:916
+#, php-format
+msgid "Public route prefix %s overrides a protected route prefix."
+msgstr ""
+
+#. translators: %s is a saved protected REST route prefix.
+#: classes/class-dydaps-api-admin-page.php:922
+#, php-format
+msgid "Protected route prefix %s is covered by a broader public prefix."
+msgstr ""
+
+#. translators: %s is a saved REST namespace.
+#: classes/class-dydaps-api-admin-page.php:927
+#, php-format
+msgid "Legacy namespace exception %s applies to every route registered in that namespace."
+msgstr ""
+
+#. translators: %s is a saved legacy exception route.
+#: classes/class-dydaps-api-admin-page.php:934
+#, php-format
+msgid "Legacy exception route %s contains an old parameter placeholder. It is now treated literally; review and replace it with an explicit route pattern if needed."
+msgstr ""
+
+#. translators: %s is an HTTP method and route pattern.
+#: classes/class-dydaps-api-admin-page.php:938
+#, php-format
+msgid "Duplicate route exception: %s."
+msgstr ""
+
+#. translators: %s is an HTTP method and route pattern.
+#: classes/class-dydaps-api-admin-page.php:942
+#, php-format
+msgid "Enabled exception %s overrides a protected route rule for that method."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:956
+msgid "An anonymous request was blocked by the active protection rule."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:957
+msgid "This route requires an API client key. No key was sent, and a key does not sign in a WordPress user."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:958
+msgid "The API client key was not accepted. A key does not sign in a WordPress user."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:959
+msgid "WordPress rejected the REST nonce. Sign in again and reload the editor."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:960
+msgid "WordPress did not receive a signed-in session for this request."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:961
+msgid "The WordPress account may not have permission for this operation."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:962
+msgid "The REST route permission check rejected this request."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:963
+msgid "WordPress returned an access denial. The saved details do not identify whether authentication or route permissions caused it."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:964
+msgid "WordPress returned an access denial. This earlier record does not contain enough detail to identify the cause."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:965
+msgid "WordPress authentication rejected the request. Sign in again and retry."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:967
+msgid "The cause was not recorded. Review this request in WordPress diagnostics."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:978
+msgid "Protection rule applied"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:981
+msgid "API client credentials need review"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:984
+msgid "WordPress authentication needs review"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:987
+msgid "WordPress permissions need review"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:989
+msgid "Cause unknown; review the request"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:999
+msgid "Strict anonymous mode"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1000
+msgid "Protected route rule"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1001
+msgid "WordPress authentication provider"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1013
+#: classes/class-dydaps-api-admin-page.php:1018
+msgid "No WordPress session"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1014
+msgid "WordPress authentication error"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1015
+msgid "Signed-in WordPress user"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1017
+msgid "Invalid WordPress authentication"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1019
+msgid "WordPress user or anonymous client"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1031
+msgid "REST API protection"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1032
+msgid "API client key"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1033
+msgid "WordPress authentication"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1034
+msgid "Unknown WordPress denial"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1035
+msgid "WordPress route permission"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1082
+msgid "You are not allowed to manage this setting."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1083
+msgid "Access denied"
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1104
+msgid "The request action is invalid."
+msgstr ""
+
+#: classes/class-dydaps-api-admin-page.php:1140
+msgid "Not available"
+msgstr ""
+
+#: classes/class-dydaps-api-namespace-registry.php:191
+msgid "WordPress Core"
+msgstr ""
+
+#: classes/class-dydaps-api-namespace-registry.php:194
+msgid "Multiple owners"
+msgstr ""
+
+#: classes/class-dydaps-api-protection-plugin.php:135
+msgid "Settings"
+msgstr ""
+
+#: classes/class-dydaps-api-rest-protection.php:127
+#: classes/class-dydaps-api-rest-protection.php:151
+#: classes/class-dydaps-api-rest-protection.php:212
+#: classes/class-dydaps-api-rest-protection.php:231
+msgid "This REST API endpoint is blocked."
+msgstr ""
+
+#: classes/class-dydaps-api-rest-protection.php:171
+#: classes/class-dydaps-api-rest-protection.php:245
+msgid "A valid API key is required to access this endpoint."
 msgstr ""

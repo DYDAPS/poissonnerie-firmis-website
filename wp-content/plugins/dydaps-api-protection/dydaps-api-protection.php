@@ -2,8 +2,8 @@
 /**
  * Plugin Name: DYDAPS API Protection
  * Plugin URI: https://dydaps.com/
- * Description: Protect selected WordPress REST API routes with a secret API key sent in a custom HTTP header.
- * Version: 1.3.0
+ * Description: Protect anonymous WordPress REST API access with configurable exceptions and API keys.
+ * Version: 1.4.1
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: DYDAPS
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'DYDAPS_API_PROTECTION_VERSION', '1.3.0' );
+define( 'DYDAPS_API_PROTECTION_VERSION', '1.4.1' );
 define( 'DYDAPS_API_PROTECTION_FILE', __FILE__ );
 define( 'DYDAPS_API_PROTECTION_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DYDAPS_API_PROTECTION_URL', plugin_dir_url( __FILE__ ) );
@@ -30,8 +30,8 @@ function dydaps_api_protection() {
 }
 
 // Register activation/deactivation hooks.
-register_activation_hook( DYDAPS_API_PROTECTION_FILE, [ 'Dydaps_Api_Activation', 'check_requirements' ] );
-register_deactivation_hook( DYDAPS_API_PROTECTION_FILE, [ 'Dydaps_Api_Activation', 'on_deactivation' ] );
+register_activation_hook( DYDAPS_API_PROTECTION_FILE, array( 'Dydaps_Api_Activation', 'check_requirements' ) );
+register_deactivation_hook( DYDAPS_API_PROTECTION_FILE, array( 'Dydaps_Api_Activation', 'on_deactivation' ) );
 
 add_action(
 	'plugins_loaded',

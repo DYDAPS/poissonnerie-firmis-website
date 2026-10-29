@@ -14,7 +14,7 @@ spl_autoload_register(
 		}
 
 		$relative_class = strtolower( str_replace( '_', '-', $class_name ) );
-		$file_path      = DYDAPS_API_PROTECTION_PATH . 'classes/class-' . str_replace( 'dydaps-api-', '', $relative_class ) . '.php';
+		$file_path      = DYDAPS_API_PROTECTION_PATH . 'classes/class-' . $relative_class . '.php';
 
 		if ( file_exists( $file_path ) ) {
 			require_once $file_path;
