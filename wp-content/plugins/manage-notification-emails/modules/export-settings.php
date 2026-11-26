@@ -23,15 +23,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function load_mod_famne_export_settings() {
+function famne_load_mod_export_settings() {
 
-	FAMNE::AddModule(
+	FAMNE::add_module(
 		'export_settings',
 		array(
 			'name'      => 'Export and import settings',
 			'version'   => '1.1.0',
 			'option_id' => array( 'export_settings' ),
-			'card'      => 'card_famne_export_settings',
+			'card'      => 'famne_card_export_settings',
 		)
 	);
 
@@ -40,13 +40,25 @@ function load_mod_famne_export_settings() {
 	 *
 	 * @return void
 	 */
-	function card_famne_export_settings() {
+	function famne_card_export_settings() {
 		global $pagenow;
 		if ( ! FAMNESettingsPage::is_famne_settings_page() && ! FAMNESettingsPage::is_famne_network_settings_page() ) {
 			return;
 		}
 
-		$downloadlink = $pagenow . '?page=' . sanitize_text_field( $_GET['page'] ) . '&export-settings=famne';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only used to build the export link.
+		$page         = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		$downloadlink = wp_nonce_url(
+			add_query_arg(
+				array(
+					'page'            => $page,
+					'export-settings' => 'famne',
+				),
+				$pagenow
+			),
+			'famne_export_settings',
+			'famne_export_nonce'
+		);
 
 		?>
 	<div class="card">
@@ -64,14 +76,16 @@ function load_mod_famne_export_settings() {
 
 	/**
 	 * Added capability check for export
+	 *
 	 * @since 1.8.6
 	 */
-	if( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 
-	$get_export_settings = ! empty( $_GET['export-settings'] ) ? sanitize_text_field( $_GET['export-settings'] ) : '';
+	$get_export_settings = ! empty( $_GET['export-settings'] ) ? sanitize_key( wp_unslash( $_GET['export-settings'] ) ) : '';
 	if ( 'famne' === $get_export_settings ) :
+		check_admin_referer( 'famne_export_settings', 'famne_export_nonce' );
 		if ( ! headers_sent() ) {
 			global $famne_options;
 
@@ -84,56 +98,62 @@ function load_mod_famne_export_settings() {
 				echo wp_json_encode( $famne_options );
 			die;
 		} else {
-			wp_die( 'Unexpected headers found.' );
+			wp_die( esc_html__( 'Unexpected headers found.', 'manage-notification-emails' ) );
 		}
 	endif;
 
-	add_filter( 'famne_sanitize_settings_page', 'card_famne_export_settings_sanitize', 99, 3 );
+	add_filter( 'famne_sanitize_settings_page', 'famne_card_export_settings_sanitize', 99, 3 );
 
-	function card_famne_export_settings_sanitize( $input ) {
+	/**
+	 * Import settings from an uploaded JSON file.
+	 *
+	 * Runs inside the settings sanitize callback, so the nonce has already been
+	 * verified by options.php (site) or check_admin_referer() (network).
+	 *
+	 * @param  array $input Sanitized settings.
+	 * @return array
+	 */
+	function famne_card_export_settings_sanitize( $input ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- See function docblock.
+		if ( ! empty( $_FILES['settings-upload-file'] ) && isset( $_FILES['settings-upload-file']['size'], $_FILES['settings-upload-file']['error'], $_FILES['settings-upload-file']['name'], $_FILES['settings-upload-file']['tmp_name'] ) ) :
+			$file_error = (int) $_FILES['settings-upload-file']['error'];
+			$file_size  = (int) $_FILES['settings-upload-file']['size'];
+			$file_name  = sanitize_file_name( wp_unslash( $_FILES['settings-upload-file']['name'] ) );
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Server generated path, validated with is_uploaded_file().
+			$file_tmp = $_FILES['settings-upload-file']['tmp_name'];
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		if ( ! empty( $_FILES['settings-upload-file'] ) && isset( $_FILES['settings-upload-file']['size'] ) ) :
-			$file = $_FILES['settings-upload-file'];
-
-			if ( 4 === $file['error'] || 0 === $file['size'] ) :
+			if ( UPLOAD_ERR_NO_FILE === $file_error || 0 === $file_size ) :
 				return $input;
 			endif;
 
-			// Get file data.
-
 			// Check errors.
-			if ( $file['error'] ) {
-				wp_die( __( 'Error uploading file. Please try again.', 'manage-notification-emails' ) );
+			if ( UPLOAD_ERR_OK !== $file_error || ! is_uploaded_file( $file_tmp ) ) {
+				wp_die( esc_html__( 'Error uploading file. Please try again.', 'manage-notification-emails' ) );
 			}
 
 			// Check file type.
-			if ( pathinfo( $file['name'], PATHINFO_EXTENSION ) !== 'json' ) {
-				wp_die( __( 'Incorrect file type.', 'manage-notification-emails' ) );
+			if ( 'json' !== strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) ) ) {
+				wp_die( esc_html__( 'Incorrect file type.', 'manage-notification-emails' ) );
 			}
 
 			// Check file size.
-			if ( $file['size'] > 100000 ) {
-				wp_die( __( 'File size exceeds maximum upload limit.', 'manage-notification-emails' ) );
+			if ( $file_size > 100000 ) {
+				wp_die( esc_html__( 'File size exceeds maximum upload limit.', 'manage-notification-emails' ) );
 			}
 
 			// Read JSON.
-			try {
-				$json = null;
-				if ( function_exists( 'file_get_contents' ) ) :
-					$json = file_get_contents( $file['tmp_name'] );
-					$json = json_decode( $json, true );
-				endif;
-				// Check if empty.
-				if ( ! $json || ! is_array( $json ) ) {
-					wp_die( __( 'Import file empty.', 'manage-notification-emails' ) );
-				}
-			} catch ( RuntimeException $e ) {
-				wp_die( 'Invalid parameters or file is corrupted.' );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local uploaded file.
+			$json = json_decode( (string) file_get_contents( $file_tmp ), true );
+
+			// Check if empty.
+			if ( ! $json || ! is_array( $json ) ) {
+				wp_die( esc_html__( 'Import file empty.', 'manage-notification-emails' ) );
 			}
 
-			// Check file size.
+			// Check plugin version.
 			if ( empty( $json['version'] ) || FA_MNE_VERSION !== $json['version'] ) {
-				wp_die( __( 'The import file has a different plugin version.', 'manage-notification-emails' ) );
+				wp_die( esc_html__( 'The import file has a different plugin version.', 'manage-notification-emails' ) );
 			}
 
 			// Get all available options.
@@ -141,7 +161,7 @@ function load_mod_famne_export_settings() {
 			foreach ( FAMNE::default_options() as $key => $o ) :
 				$available_options[] = $key;
 			endforeach;
-			foreach ( FAMNE::getModules() as $mod ) :
+			foreach ( FAMNE::get_modules() as $mod ) :
 				if ( ! empty( $mod->option_id ) && is_array( $mod->option_id ) ) :
 					foreach ( $mod->option_id as $m ) :
 							$available_options[] = $m;
@@ -151,7 +171,7 @@ function load_mod_famne_export_settings() {
 
 			$input = array();
 			foreach ( $json as $key => $val ) :
-				if ( in_array( $key, $available_options, true ) ) {
+				if ( in_array( $key, $available_options, true ) && is_scalar( $val ) ) {
 					$input[ $key ] = sanitize_text_field( $val );
 				}
 			endforeach;
@@ -159,7 +179,6 @@ function load_mod_famne_export_settings() {
 
 		return $input;
 	}
-
 }
 
-add_action( 'fa_mne_modules', 'load_mod_famne_export_settings' );
+add_action( 'fa_mne_modules', 'famne_load_mod_export_settings' );

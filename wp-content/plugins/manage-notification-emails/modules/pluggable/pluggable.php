@@ -13,6 +13,11 @@
  * since: 1.3.0
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! defined( 'FA_MNE_PLUGIN_DIR' ) ) {
 	die();
 }
@@ -20,10 +25,6 @@ if ( ! defined( 'FA_MNE_PLUGIN_DIR' ) ) {
 global $wp_version;
 if ( version_compare( $wp_version, '6.1.0' ) >= 0 ) {
 	include_once FA_MNE_PLUGIN_DIR . '/modules/pluggable/pluggable-functions-1.6.php';
-} elseif ( version_compare( $wp_version, '5.2.0' ) >= 0 ) {
-	include_once FA_MNE_PLUGIN_DIR . '/modules/pluggable/pluggable-functions-1.5.php';
-} elseif ( version_compare( $wp_version, '4.7.0' ) >= 0 ) {
-	include_once FA_MNE_PLUGIN_DIR . '/modules/pluggable/pluggable-functions-1.3.php';
 } else {
-	include_once FA_MNE_PLUGIN_DIR . '/modules/pluggable/pluggable-functions-1.2.php';
+	include_once FA_MNE_PLUGIN_DIR . '/modules/pluggable/pluggable-functions-1.5.php';
 }

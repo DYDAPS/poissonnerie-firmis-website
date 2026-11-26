@@ -13,17 +13,22 @@
  * since: 1.8.0
  */
 
-if ( ! defined( 'ABSPATH' ) || ! class_exists( 'FAMNESettingsPage', false ) ) {
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! class_exists( 'FAMNESettingsPage', false ) ) {
 	exit;
 }
 ?>
 <div class="wrap">
-	<h2><?php _e( 'Manage the notification e-mails', 'manage-notification-emails' ); ?> <small><small><?php _e( 'version', 'manage-notification-emails' ); ?> <?php echo FA_MNE_VERSION; ?></small></small></h2>
+	<h2><?php esc_html_e( 'Manage the notification e-mails', 'manage-notification-emails' ); ?> <small><small><?php esc_html_e( 'version', 'manage-notification-emails' ); ?> <?php echo esc_html( FA_MNE_VERSION ); ?></small></small></h2>
 	<form method="post" action="edit.php?action=famnesavenetwork" enctype="multipart/form-data">
 <?php
 	wp_nonce_field( 'famnenetwork_save', 'famnenetwork' );
 
-_e( 'Manage your notification e-mail preferences below.', 'manage-notification-emails' );
+esc_html_e( 'Manage your notification e-mail preferences below.', 'manage-notification-emails' );
 ?>
 	<br/>
 	<br/>
@@ -41,4 +46,4 @@ _e( 'Manage your notification e-mail preferences below.', 'manage-notification-e
 		</form>
 	</div>
 <?php
-require_once dirname( __FILE__ ) . '/donatebox.php';
+require_once __DIR__ . '/donatebox.php';

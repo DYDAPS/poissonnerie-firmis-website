@@ -23,30 +23,30 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array $args
  */
-function load_mod_famne_custom_recipients() {
-	FAMNE::AddModule(
+function famne_load_mod_custom_recipients() {
+	FAMNE::add_module(
 		'custom_admin_recipients',
 		array(
 			'name'      => 'Choose extra recipients for admin notifications',
 			'version'   => '1.0.0',
 			'option_id' => array( 'custom_admin_recipients' ),
-			'card'      => 'card_famne_custom_admin_recipients',
+			'card'      => 'famne_card_custom_admin_recipients',
 		)
 	);
 
 	/**
 	 * Card_famne_custom_admin_recipients
 	 *
-	 * @param  mixed $famne_options
+	 * @param  array $famne_options Plugin options.
 	 * @return void
 	 */
-	function card_famne_custom_admin_recipients( $famne_options ) {
+	function famne_card_custom_admin_recipients( $famne_options ) {
 		?>
 	<div class="card">
 		<label class="switch"><div class="slider round <?php echo ( ! empty( $famne_options['custom_admin_recipients'] ) ? 'active' : '' ); ?>"><span class="on">ON</span><span class="off">OFF</span></div></label>
 		<h2 class="title"><?php esc_html_e( 'Extra admin recipients', 'manage-notification-emails' ); ?></h2>
-		<?php _e( 'Here you can add extra admin recipients who will also receive all admin notifications.', 'manage-notification-emails' ); ?>
-		<?php print_textbox( $famne_options, 'custom_admin_recipients', __( 'E-mail address(es)', 'manage-notification-emails' ), '', __( 'For multiple addresses separate by comma.', 'manage-notification-emails' ), 'text', 'email1@domain.com,email2@otherdomain.com' ); ?>
+		<?php esc_html_e( 'Here you can add extra admin recipients who will also receive all admin notifications.', 'manage-notification-emails' ); ?>
+		<?php famne_print_textbox( $famne_options, 'custom_admin_recipients', __( 'E-mail address(es)', 'manage-notification-emails' ), '', __( 'For multiple addresses separate by comma.', 'manage-notification-emails' ), 'text', 'email1@domain.com,email2@otherdomain.com' ); ?>
 	</div>
 		<?php
 	}
@@ -56,7 +56,7 @@ function load_mod_famne_custom_recipients() {
 	/**
 	 * Filter custom admin email emailadresses.
 	 *
-	 * @param  mixed $args
+	 * @param  array $args A compacted array of wp_mail() arguments.
 	 * @return array $args
 	 */
 	function famne_custom_to_admin_mailaddresses( $args ) {
@@ -110,4 +110,4 @@ function load_mod_famne_custom_recipients() {
 	}
 }
 
-add_action( 'fa_mne_modules', 'load_mod_famne_custom_recipients' );
+add_action( 'fa_mne_modules', 'famne_load_mod_custom_recipients' );

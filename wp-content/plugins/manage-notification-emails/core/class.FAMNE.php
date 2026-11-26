@@ -15,14 +15,36 @@
  * since: 1.6.0
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! class_exists( 'FAMNE' ) ) :
 	/**
 	 * FAMNE
 	 */
 	class FAMNE {
 
-		private static $modules         = array();
-		private static $notices         = array();
+		/**
+		 * Registered modules, keyed by name.
+		 *
+		 * @var array
+		 */
+		private static $modules = array();
+
+		/**
+		 * Queued admin notices.
+		 *
+		 * @var array
+		 */
+		private static $notices = array();
+
+		/**
+		 * Whether the settings are managed by the multisite network.
+		 *
+		 * @var bool
+		 */
 		private static $network_managed = false;
 
 		/**
@@ -46,13 +68,13 @@ if ( ! class_exists( 'FAMNE' ) ) :
 		}
 
 		/**
-		 * AddModule
+		 * Register a module.
 		 *
-		 * @param  mixed $name
-		 * @param  mixed $args
+		 * @param  string $name Module identifier.
+		 * @param  array  $args Module arguments: name, version, licensed, slug, card, option_id.
 		 * @return void
 		 */
-		public static function AddModule( $name, $args ) {
+		public static function add_module( $name, $args ) {
 			self::$modules[ $name ] = (object) array(
 				'name'      => isset( $args['name'] ) ? $args['name'] : $name,
 				'version'   => isset( $args['version'] ) ? $args['version'] : FA_MNE_VERSION,
@@ -64,29 +86,71 @@ if ( ! class_exists( 'FAMNE' ) ) :
 		}
 
 		/**
-		 * Get modules
+		 * Get registered modules.
 		 *
 		 * @return array
 		 */
-		public static function getModules() {
+		public static function get_modules() {
 			return self::$modules;
 		}
 
 		/**
-		 * Add Notice
+		 * Add an admin notice.
 		 *
-		 * @param  string  $message
-		 * @param  string  $priority
-		 * @param  boolean $dismissible
+		 * @param  string  $message     Notice text.
+		 * @param  string  $priority    Notice type: error, warning, success or info.
+		 * @param  boolean $dismissible Whether the notice can be dismissed.
 		 * @return void
 		 */
-		public static function AddNotice( $message = 'missing notification message', $priority = 'error', $dismissible = false ) {
+		public static function add_notice( $message = 'missing notification message', $priority = 'error', $dismissible = false ) {
 			self::$notices[] = array(
 				'message'     => $message,
 				'priority'    => $priority,
 				'dismissible' => $dismissible,
 			);
 		}
+
+		// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Backwards compatible aliases.
+
+		/**
+		 * Alias of add_module() for external modules.
+		 *
+		 * @deprecated 1.9.0 Use FAMNE::add_module().
+		 *
+		 * @param  string $name Module identifier.
+		 * @param  array  $args Module arguments.
+		 * @return void
+		 */
+		public static function AddModule( $name, $args ) {
+			self::add_module( $name, $args );
+		}
+
+		/**
+		 * Alias of get_modules() for external modules.
+		 *
+		 * @deprecated 1.9.0 Use FAMNE::get_modules().
+		 *
+		 * @return array
+		 */
+		public static function getModules() {
+			return self::get_modules();
+		}
+
+		/**
+		 * Alias of add_notice() for external modules.
+		 *
+		 * @deprecated 1.9.0 Use FAMNE::add_notice().
+		 *
+		 * @param  string  $message     Notice text.
+		 * @param  string  $priority    Notice type.
+		 * @param  boolean $dismissible Whether the notice can be dismissed.
+		 * @return void
+		 */
+		public static function AddNotice( $message = 'missing notification message', $priority = 'error', $dismissible = false ) {
+			self::add_notice( $message, $priority, $dismissible );
+		}
+
+		// phpcs:enable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 
 		/**
 		 * Admin notices
@@ -110,6 +174,7 @@ if ( ! class_exists( 'FAMNE' ) ) :
 		 * @since 2.0.1
 		 */
 		public function do_modules() {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public hook, kept for backward compatibility.
 			do_action( 'fa_mne_modules' );
 		}
 
@@ -118,7 +183,7 @@ if ( ! class_exists( 'FAMNE' ) ) :
 		/**
 		 * Get_option
 		 *
-		 * @param  mixed $name
+		 * @param  string $name Option name.
 		 * @return mixed $option
 		 */
 		public static function get_option( $name ) {
@@ -135,8 +200,8 @@ if ( ! class_exists( 'FAMNE' ) ) :
 		/**
 		 * Update_option
 		 *
-		 * @param  string $name
-		 * @param  mixed  $options
+		 * @param  string $name    Option name.
+		 * @param  mixed  $options Option value.
 		 * @return boolean
 		 */
 		public static function update_option( $name, $options ) {
@@ -179,6 +244,14 @@ if ( ! class_exists( 'FAMNE' ) ) :
 		 * @return void
 		 */
 		public static function update_check() {
+			/*
+			 * On a multisite the version is stored network wide, so a site without settings
+			 * (like a subsite or a newly created site) gets the defaults here.
+			 */
+			if ( false !== self::get_option( 'fa_mne_version' ) && false === self::get_option( 'famne_options' ) ) {
+				self::update_option( 'famne_options', self::default_options() );
+			}
+
 			if ( self::get_option( 'fa_mne_version' ) !== FA_MNE_VERSION ) {
 				$options         = self::get_option( 'famne_options' );
 				$current_version = self::get_option( 'fa_mne_version' );
@@ -252,18 +325,13 @@ if ( ! class_exists( 'FAMNE' ) ) :
 		 */
 		protected static function get_all_site_ids() {
 
-			global $wpdb;
-			$site_ids = $wpdb->get_col(
-				$wpdb->prepare(
-					"
-						SELECT `blog_id`
-						FROM `{$wpdb->blogs}`
-						WHERE `site_id` = %d
-					",
-					$wpdb->siteid
+			return get_sites(
+				array(
+					'fields'     => 'ids',
+					'network_id' => get_current_network_id(),
+					'number'     => 0,
 				)
 			);
-			return $site_ids;
 		}
 
 

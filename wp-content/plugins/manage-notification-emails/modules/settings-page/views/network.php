@@ -13,7 +13,12 @@
  * since: 1.8.0
  */
 
-if ( ! defined( 'ABSPATH' ) || ! class_exists( 'FAMNESettingsPage', false ) ) {
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! class_exists( 'FAMNESettingsPage', false ) ) {
 	exit;
 }
 $famne_options = FAMNE::get_option( 'famne_options' );
@@ -26,11 +31,11 @@ $famne_options['network_managed'] = FAMNE::get_option( 'famne_network_managed' )
 
 ?>
 <div class="wrap page-width">
-<h3><?php _e( 'Manage multisite options', 'manage-notification-emails' ); ?></h3>
-<p><?php _e( 'Here you can choose to manage all options for this plugin in one location. No hassle with toggling options on and off for each subsite individually.', 'manage-notification-emails' ); ?></p>
+<h3><?php esc_html_e( 'Manage multisite options', 'manage-notification-emails' ); ?></h3>
+<p><?php esc_html_e( 'Here you can choose to manage all options for this plugin in one location. No hassle with toggling options on and off for each subsite individually.', 'manage-notification-emails' ); ?></p>
 <div class="section-part">
 <?php
-	print_checkbox( $famne_options, 'network_managed', __( 'Use the network settings.', 'manage-notification-emails' ), __( 'Checking this option will disable per site management. All sites will use these global network settings.', 'manage-notification-emails' ) );
+	famne_print_checkbox( $famne_options, 'network_managed', __( 'Use the network settings.', 'manage-notification-emails' ), __( 'Checking this option will disable per site management. All sites will use these global network settings.', 'manage-notification-emails' ) );
 ?>
 </div>
 </div>

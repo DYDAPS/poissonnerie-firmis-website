@@ -15,6 +15,11 @@
  * version: 1.3.1
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 
 	/**
@@ -22,10 +27,21 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 	 */
 	class FAMNESettingsPage {
 
-		private $options;
-		const MENU_SLUG          = 'famne-admin';
-		const MENU_NETWORK_SLUG  = 'famne-network-admin';
-		private $tabs            = array();
+		const MENU_SLUG         = 'famne-admin';
+		const MENU_NETWORK_SLUG = 'famne-network-admin';
+
+		/**
+		 * Settings page tabs, keyed by sort order.
+		 *
+		 * @var array
+		 */
+		private $tabs = array();
+
+		/**
+		 * Registered sections, keyed by sort order.
+		 *
+		 * @var array
+		 */
 		private static $sections = array();
 
 		/**
@@ -42,7 +58,6 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 
 			add_filter( 'plugin_action_links_' . FA_MNE_PLUGIN_BASENAME, array( $this, 'add_action_links' ) );
 			add_action( 'init', array( $this, 'famne_load_textdomain' ) );
-
 		}
 
 		/**
@@ -54,12 +69,12 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 				'settings.php', // Parent element.
 				'Notification e-mails', // Text in browser title bar.
 				'Notification e-mails', // Text to be displayed in the menu.
-				'manage_options', // Capability.
+				'manage_network_options', // Capability.
 				self::MENU_NETWORK_SLUG, // Page slug, will be displayed in URL.
 				array( $this, 'print_admin_page' )
 			);
 
-			$this->addTabs();
+			$this->add_tabs();
 			add_action( 'admin_init', array( $this, 'load_scripts' ) );
 		}
 
@@ -76,13 +91,19 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 				array( $this, 'print_admin_page' )
 			);
 
-			$this->addTabs();
+			$this->add_tabs();
 			add_action( 'admin_init', array( $this, 'load_scripts' ) );
 		}
 
 
+		/**
+		 * Show the "settings updated" notice on the network settings page.
+		 *
+		 * @return void
+		 */
 		public function custom_notices() {
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only displays a notice after redirect.
 			if ( self::is_famne_network_settings_page() && isset( $_GET['updated'] ) ) {
 				echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html__( 'Settings updated.', 'manage-notification-emails' ) . '</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">' . esc_html__( 'Dismiss this notice.', 'manage-notification-emails' ) . '</span></button></div>';
 			}
@@ -94,7 +115,7 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		 *
 		 * @return void
 		 */
-		private function addTabs() {
+		private function add_tabs() {
 			if ( self::is_famne_network_settings_page() ) :
 				$this->tabs[5] = array(
 					'title'     => __( 'Network options', 'manage-notification-emails' ),
@@ -146,7 +167,8 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 				self::MENU_SLUG // Page.
 			);
 
-			if ( isset( $_GET['famne_reset'] ) && is_string( $_GET['famne_reset'] ) && '1' === $_GET['famne_reset'] ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is verified in reset_settings().
+			if ( isset( $_GET['famne_reset'] ) && '1' === $_GET['famne_reset'] ) {
 				$this->reset_settings();
 			}
 		}
@@ -158,7 +180,8 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		 */
 		public static function is_famne_settings_page() {
 			global $pagenow;
-			$getpage = isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page detection.
+			$getpage       = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 			$is_admin_page = 'options-general.php' === $pagenow && self::MENU_SLUG === $getpage;
 			return $is_admin_page;
 		}
@@ -170,7 +193,8 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		 */
 		public static function is_famne_network_settings_page() {
 			global $pagenow;
-			$getpage = isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page detection.
+			$getpage               = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 			$is_network_admin_page = 'settings.php' === $pagenow && self::MENU_NETWORK_SLUG === $getpage;
 			return $is_network_admin_page;
 		}
@@ -195,7 +219,7 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		 * @param array $input Contains all settings fields as array keys.
 		 */
 		public function sanitize( $input ) {
-			if ( empty( $input ) ) {
+			if ( empty( $input ) || ! is_array( $input ) ) {
 				$input = array();
 			}
 			$new_input = array();
@@ -204,11 +228,11 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 				$new_input[ $key ] = '1' === strval( $val ) ? '1' : '';
 			}
 
-			foreach ( FAMNE::getModules() as $mod ) :
+			foreach ( FAMNE::get_modules() as $mod ) :
 				if ( ! empty( $mod->option_id ) && is_array( $mod->option_id ) ) :
 					foreach ( $mod->option_id as $m ) :
-						if ( isset( $input[ $m ] ) ) {
-							$new_input[ $m ] = $input[ $m ];
+						if ( isset( $input[ $m ] ) && is_scalar( $input[ $m ] ) ) {
+							$new_input[ $m ] = sanitize_text_field( $input[ $m ] );
 						}
 						endforeach;
 				endif;
@@ -220,21 +244,29 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		}
 
 
+		/**
+		 * Save the network settings.
+		 *
+		 * @return void
+		 */
 		public function save_networksettings() {
 
 			if ( ! current_user_can( 'manage_network_options' ) ) {
-				check_admin_referer( 'fake_info_action', 'fake_info' );
-				exit;
+				wp_die( esc_html__( 'Sorry, you are not allowed to manage options for this site.', 'manage-notification-emails' ), 403 );
 			}
 
 			if ( ! empty( $_POST ) && check_admin_referer( 'famnenetwork_save', 'famnenetwork' ) ) {
 
+				// Each value is sanitized in $this->sanitize().
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$posted_options = isset( $_POST['famne_options'] ) && is_array( $_POST['famne_options'] ) ? wp_unslash( $_POST['famne_options'] ) : array();
+
 				$network_activated = FAMNE::get_option( 'famne_network_managed' );
-				$network_managed   = ! empty( $_POST['famne_options'] ) && '1' === $_POST['famne_options']['network_managed'] ? '1' : null;
+				$network_managed   = isset( $posted_options['network_managed'] ) && '1' === $posted_options['network_managed'] ? '1' : null;
 				FAMNE::update_option( 'famne_network_managed', $network_managed );
 
 				if ( $network_managed ) :
-					$options = $_POST['famne_options'];
+					$options = $posted_options;
 
 					if ( empty( $network_activated ) ) :
 						$options = FAMNE::default_options();
@@ -265,26 +297,29 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 			}
 		}
 
+		/**
+		 * Reset the settings to their defaults.
+		 *
+		 * @return void
+		 */
 		private function reset_settings() {
-			if ( ! isset( $_GET['famne_reset'] ) || ! is_string( $_GET['famne_reset'] ) || '1' !== $_GET['famne_reset'] || ! isset( $_GET['nonce'] ) ) :
-				return;
-			endif;
-
-			if ( ! wp_verify_nonce( $_GET['nonce'], 'famne_reset' ) ) :
+			if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['nonce'] ) ), 'famne_reset' ) ) :
 				wp_nonce_ays( '' );
 				die();
 			endif;
 
-			if ( self::is_famne_settings_page() ) :
+			if ( self::is_famne_settings_page() && current_user_can( 'manage_options' ) ) :
 				delete_option( 'fa_mne_version' );
 				delete_option( 'famne_options' );
 				FAMNE::install();
-				echo "<script>document.location='" . admin_url( 'options-general.php?page=famne-admin&updated=1' ) . "'</script>";
-			elseif ( self::is_famne_network_settings_page() ) :
+				wp_safe_redirect( admin_url( 'options-general.php?page=' . self::MENU_SLUG . '&updated=1' ) );
+			elseif ( self::is_famne_network_settings_page() && current_user_can( 'manage_network_options' ) ) :
 				delete_site_option( 'fa_mne_version' );
 				delete_site_option( 'famne_options' );
 				FAMNE::install();
-				echo "<script>document.location='" . admin_url( 'network/settings.php?page=famne-network-admin&updated=1' ) . "'</script>";
+				wp_safe_redirect( network_admin_url( 'settings.php?page=' . self::MENU_NETWORK_SLUG . '&updated=1' ) );
+			else :
+				wp_die( esc_html__( 'Sorry, you are not allowed to manage options for this site.', 'manage-notification-emails' ), 403 );
 			endif;
 			exit;
 		}
@@ -306,17 +341,17 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 			do_action( 'famne_register_settings_section' );
 
 			if ( self::is_famne_network_settings_page() ) :
-				include_once dirname( __FILE__ ) . '/views/container-network.php';
+				include_once __DIR__ . '/views/container-network.php';
 			else :
-				include_once dirname( __FILE__ ) . '/views/container.php';
+				include_once __DIR__ . '/views/container.php';
 			endif;
 		}
 
 		/**
 		 * Register section
 		 *
-		 * @param  mixed $section
-		 * @param  mixed $ord
+		 * @param  array $section Section data: title, slug, view_file, icon.
+		 * @param  int   $ord     Sort order.
 		 * @return void
 		 */
 		public static function register_section( $section, $ord = 99 ) {
@@ -326,18 +361,17 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		/**
 		 * Print registered sections
 		 *
-		 * @param  mixed $output
 		 * @return void
 		 */
-		public static function print_sections( $output = true ) {
+		public static function print_sections() {
 
-			require_once dirname( __FILE__ ) . '/formfields.php';
+			require_once __DIR__ . '/formfields.php';
 
 			ksort( self::$sections );
 			foreach ( self::$sections as &$section ) {
-				$icon = ! empty( $section['icon'] ) ? 'data-icon="' . esc_attr( $section['icon'] ) . '"' : '';
+				$icon = ! empty( $section['icon'] ) ? $section['icon'] : '';
 				echo PHP_EOL;
-				echo '<div class="sections-container" id="' . esc_attr( 'sections-' . $section['slug'] ) . '" title="' . esc_attr( ucfirst( __( $section['title'] ) ) ) . '" ' . $icon . '>';
+				echo '<div class="sections-container" id="' . esc_attr( 'sections-' . $section['slug'] ) . '" title="' . esc_attr( ucfirst( $section['title'] ) ) . '"' . ( $icon ? ' data-icon="' . esc_attr( $icon ) . '"' : '' ) . '>';
 
 				if ( ! empty( $section['view_file'] ) ) :
 					$view_file = FA_MNE_PLUGIN_DIR . '/modules/settings-page/views/' . basename( $section['view_file'] );
@@ -356,10 +390,9 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		/**
 		 * Enqueue scripts
 		 *
-		 * @param  mixed $hook
 		 * @return void
 		 */
-		public function enqueue_scripts( $hook ) {
+		public function enqueue_scripts() {
 
 			wp_enqueue_style(
 				'famne-settings-page',
@@ -380,12 +413,12 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		/**
 		 * Add_ plugin settings link
 		 *
-		 * @param  mixed $links
+		 * @param  array $links Plugin action links.
 		 * @return string
 		 */
 		public function add_action_links( $links ) {
 			$mylinks = array(
-				'<a href="' . admin_url( 'options-general.php?page=famne-admin' ) . '">' . __( 'Settings' ) . '</a>',
+				'<a href="' . esc_url( admin_url( 'options-general.php?page=' . self::MENU_SLUG ) ) . '">' . esc_html__( 'Settings', 'manage-notification-emails' ) . '</a>',
 			);
 			return array_merge( $links, $mylinks );
 		}
@@ -396,6 +429,7 @@ if ( ! class_exists( 'FAMNESettingsPage' ) ) :
 		 * @since 1.4.2
 		 */
 		public function famne_load_textdomain() {
+			// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Bundled translations are not loaded automatically for network-activated plugins or before WP 6.7.
 			load_plugin_textdomain( FA_MNE_SLUG, false, basename( FA_MNE_PLUGIN_DIR ) . '/languages' );
 		}
 	}

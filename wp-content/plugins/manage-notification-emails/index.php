@@ -1,1 +1,6 @@
-<?php // there is nothing to see here!
+<?php
+/**
+ * Silence is golden.
+ *
+ * @package manage-notification-emails
+ */

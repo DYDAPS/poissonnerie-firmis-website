@@ -13,13 +13,18 @@
  * since: 1.6.0
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( class_exists( 'FAMNE' ) && ! function_exists( 'famne_meta_links' ) ) :
 
 	/**
 	 * Famne_meta_links
 	 *
-	 * @param array  $links
-	 * @param string $file
+	 * @param array  $links Plugin row meta links.
+	 * @param string $file  Plugin basename.
 	 * @return array
 	 */
 	function famne_meta_links( $links, $file ) {

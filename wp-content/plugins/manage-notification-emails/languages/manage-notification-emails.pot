@@ -1,27 +1,41 @@
-# Copyright (C) 2021 Manage Notification E-mails
-# This file is distributed under the same license as the Manage Notification E-mails package.
-#, fuzzy
+# Copyright (C) 2026 Virgial Berveling
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Manage Notification E-mails\n"
+"Project-Id-Version: Manage Notification E-mails 1.9.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/manage-notification-emails\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Basepath: ..\n"
-"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;"
-"_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;"
-"esc_html_e;esc_html_x:1,2c\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"POT-Creation-Date: 2026-09-29T09:02:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"POT-Creation-Date: 2021-05-24 21:56+0200\n"
-"X-Generator: Poedit 2.4.2\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"X-Poedit-SearchPath-0: .\n"
-"X-Poedit-SearchPathExcluded-0: *.js\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: manage-notification-emails\n"
+
+#. Plugin Name of the plugin
+#: manage-notification-emails.php
+msgid "Manage Notification E-mails"
+msgstr ""
+
+#. Description of the plugin
+#: manage-notification-emails.php
+msgid "This plugin gives you the option to disable some of the notification e-mails send by WordPress. It's a simple plugin but effective."
+msgstr ""
+
+#. Author of the plugin
+#: manage-notification-emails.php
+msgid "Virgial Berveling"
+msgstr ""
+
+#. Author URI of the plugin
+#: manage-notification-emails.php
+msgid "https://www.freeamigos.nl"
+msgstr ""
 
 #: core/functions.setup.php:27
+#: modules/settings-page/views/donatebox.php:22
 msgid "Donate"
 msgstr ""
 
@@ -30,190 +44,148 @@ msgid "Extra admin recipients"
 msgstr ""
 
 #: modules/custom-recipients.php:48
-msgid ""
-"Here you can add extra admin recipients who will also receive all admin "
-"notifications."
+msgid "Here you can add extra admin recipients who will also receive all admin notifications."
 msgstr ""
 
 #: modules/custom-recipients.php:49
 msgid "E-mail address(es)"
 msgstr ""
 
-#: modules/export-settings.php:52
+#: modules/custom-recipients.php:49
+msgid "For multiple addresses separate by comma."
+msgstr ""
+
+#: modules/export-settings.php:65
 msgid "Export and import settings"
 msgstr ""
 
-#: modules/export-settings.php:53
-msgid ""
-"Here you can export or import your Manage notification e-mails settings."
+#: modules/export-settings.php:66
+msgid "Here you can export or import your Manage notification e-mails settings."
 msgstr ""
 
-#: modules/export-settings.php:57
+#: modules/export-settings.php:67
+msgid "Export your settings in JSON format"
+msgstr ""
+
+#: modules/export-settings.php:68
+msgid "Export settings file"
+msgstr ""
+
+#: modules/export-settings.php:69
+msgid "Import setting in JSON format"
+msgstr ""
+
+#: modules/export-settings.php:70
 msgid "Do you want to overwrite your current settings?"
 msgstr ""
 
-#: modules/export-settings.php:58
+#: modules/export-settings.php:71
 msgid "Start import"
 msgstr ""
 
-#: modules/export-settings.php:97
+#: modules/export-settings.php:101
+msgid "Unexpected headers found."
+msgstr ""
+
+#: modules/export-settings.php:132
 msgid "Error uploading file. Please try again."
 msgstr ""
 
-#: modules/export-settings.php:102
+#: modules/export-settings.php:137
 msgid "Incorrect file type."
 msgstr ""
 
-#: modules/export-settings.php:108
+#: modules/export-settings.php:142
 msgid "File size exceeds maximum upload limit."
 msgstr ""
 
-#: modules/export-settings.php:120
+#: modules/export-settings.php:151
 msgid "Import file empty."
 msgstr ""
 
-#: modules/export-settings.php:128
+#: modules/export-settings.php:156
 msgid "The import file has a different plugin version."
 msgstr ""
 
-#: modules/pluggable/pluggable-functions-1.2.php:30
-#: modules/pluggable/pluggable-functions-1.3.php:34
-#: modules/pluggable/pluggable-functions-1.5.php:44
-#, php-format
-msgid "Password Lost and Changed for user: %s"
+#: modules/settings-page/class.FAMNESettingsPage.php:103
+msgid "Settings updated."
 msgstr ""
 
-#: modules/pluggable/pluggable-functions-1.2.php:34
-#: modules/pluggable/pluggable-functions-1.3.php:38
-#: modules/pluggable/pluggable-functions-1.5.php:48
-#, php-format
-msgid "[%s] Password Lost/Changed"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.2.php:162
-#: modules/pluggable/pluggable-functions-1.3.php:185
-#: modules/pluggable/pluggable-functions-1.5.php:200
-#, php-format
-msgid "New user registration on your site %s:"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.2.php:163
-#: modules/pluggable/pluggable-functions-1.2.php:195
-#: modules/pluggable/pluggable-functions-1.3.php:186
-#: modules/pluggable/pluggable-functions-1.3.php:232
-#: modules/pluggable/pluggable-functions-1.5.php:202
-#: modules/pluggable/pluggable-functions-1.5.php:286
-#, php-format
-msgid "Username: %s"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.2.php:164
-#, php-format
-msgid "E-mail: %s"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.2.php:167
-#: modules/pluggable/pluggable-functions-1.3.php:189
-#: modules/pluggable/pluggable-functions-1.5.php:209
-#, php-format
-msgid "[%s] New User Registration"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.2.php:196
-#: modules/pluggable/pluggable-functions-1.3.php:233
-#: modules/pluggable/pluggable-functions-1.5.php:287
-msgid "To set your password, visit the following address:"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.2.php:201
-#: modules/pluggable/pluggable-functions-1.3.php:238
-#, php-format
-msgid "[%s] Your username and password info"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.3.php:187
-#: modules/pluggable/pluggable-functions-1.5.php:204
-#, php-format
-msgid "Email: %s"
-msgstr ""
-
-#: modules/pluggable/pluggable-functions-1.5.php:295
-#, php-format
-msgid "[%s] Login Details"
-msgstr ""
-
-#: modules/settings-page/class.FAMNESettingsPage.php:100
-msgid "Network options"
-msgstr ""
-
-#: modules/settings-page/class.FAMNESettingsPage.php:110
-msgid "Core options"
+#: modules/settings-page/class.FAMNESettingsPage.php:103
+msgid "Dismiss this notice."
 msgstr ""
 
 #: modules/settings-page/class.FAMNESettingsPage.php:116
+msgid "Network options"
+msgstr ""
+
+#: modules/settings-page/class.FAMNESettingsPage.php:126
+msgid "Core options"
+msgstr ""
+
+#: modules/settings-page/class.FAMNESettingsPage.php:132
 msgid "Modules"
 msgstr ""
 
-#: modules/settings-page/class.FAMNESettingsPage.php:122
-#: modules/settings-page/views/extra.php:23
+#: modules/settings-page/class.FAMNESettingsPage.php:138
+#: modules/settings-page/views/extra.php:25
 msgid "Information"
 msgstr ""
 
-#: modules/settings-page/class.FAMNESettingsPage.php:368
+#: modules/settings-page/class.FAMNESettingsPage.php:250
+#: modules/settings-page/class.FAMNESettingsPage.php:317
+msgid "Sorry, you are not allowed to manage options for this site."
+msgstr ""
+
+#: modules/settings-page/class.FAMNESettingsPage.php:416
 msgid "Settings"
 msgstr ""
 
 #: modules/settings-page/views/container-network.php:21
-#: modules/settings-page/views/container.php:23
+#: modules/settings-page/views/container.php:25
 msgid "Manage the notification e-mails"
 msgstr ""
 
 #: modules/settings-page/views/container-network.php:21
-#: modules/settings-page/views/container.php:23
+#: modules/settings-page/views/container.php:25
 msgid "version"
 msgstr ""
 
 #: modules/settings-page/views/container-network.php:26
-#: modules/settings-page/views/container.php:37
+#: modules/settings-page/views/container.php:39
 msgid "Manage your notification e-mail preferences below."
 msgstr ""
 
-#: modules/settings-page/views/container.php:30
+#: modules/settings-page/views/container.php:32
 msgid "Site managed by network manager"
 msgstr ""
 
-#: modules/settings-page/views/container.php:31
-msgid ""
-"Manage notification e-mails settings for this site are globally managed in "
-"the multisite network settings menu."
+#: modules/settings-page/views/container.php:33
+msgid "Manage notification e-mails settings for this site are globally managed in the multisite network settings menu."
 msgstr ""
 
-#: modules/settings-page/views/donatebox.php:18
+#: modules/settings-page/views/donatebox.php:21
 msgid "If you find this plugin useful, you can show your appreciation here :-)"
 msgstr ""
 
-#: modules/settings-page/views/extra.php:25
+#: modules/settings-page/views/extra.php:27
 msgid "Available Manage Notification E-mail Modules"
 msgstr ""
 
-#: modules/settings-page/views/modules.php:24
+#: modules/settings-page/views/modules.php:26
 msgid "Extra modules"
 msgstr ""
 
-#: modules/settings-page/views/modules.php:25
-msgid ""
-"The modules below are options which are not available in WordPress by "
-"default."
+#: modules/settings-page/views/modules.php:27
+msgid "The modules below are options which are not available in WordPress by default."
 msgstr ""
 
-#: modules/settings-page/views/modules.php:39
+#: modules/settings-page/views/modules.php:41
 msgid "Multisite managed settings available"
 msgstr ""
 
-#: modules/settings-page/views/modules.php:40
-msgid ""
-"For this environment, it is possible for you to manage all settings globally "
-"in the network settings menu."
+#: modules/settings-page/views/modules.php:42
+msgid "For this environment, it is possible for you to manage all settings globally in the network settings menu."
 msgstr ""
 
 #: modules/settings-page/views/network.php:29
@@ -221,9 +193,7 @@ msgid "Manage multisite options"
 msgstr ""
 
 #: modules/settings-page/views/network.php:30
-msgid ""
-"Here you can choose to manage all options for this plugin in one location. "
-"No hassle with toggling options on and off for each subsite individually."
+msgid "Here you can choose to manage all options for this plugin in one location. No hassle with toggling options on and off for each subsite individually."
 msgstr ""
 
 #: modules/settings-page/views/network.php:33
@@ -231,144 +201,129 @@ msgid "Use the network settings."
 msgstr ""
 
 #: modules/settings-page/views/network.php:33
-msgid ""
-"Checking this option will disable per site management. All sites will use "
-"these global network settings."
+msgid "Checking this option will disable per site management. All sites will use these global network settings."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:22
+#: modules/settings-page/views/settings.php:25
 msgid "Options for e-mails to users"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:25
+#: modules/settings-page/views/settings.php:28
 msgid "New user notification to user"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:25
+#: modules/settings-page/views/settings.php:28
 msgid "Send e-mail with login credentials to a newly-registered user."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:26
+#: modules/settings-page/views/settings.php:29
 msgid "Notify post author"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:26
-msgid ""
-"Send e-mail to an author (and/or others) of a comment/trackback/pingback on "
-"a post."
+#: modules/settings-page/views/settings.php:29
+msgid "Send e-mail to an author (and/or others) of a comment/trackback/pingback on a post."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:27
+#: modules/settings-page/views/settings.php:30
 msgid "Notify moderator"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:27
-msgid ""
-"Send e-mail to the moderator of the blog about a new comment that is "
-"awaiting approval."
+#: modules/settings-page/views/settings.php:30
+msgid "Send e-mail to the moderator of the blog about a new comment that is awaiting approval."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:28
+#: modules/settings-page/views/settings.php:31
 msgid "Password change notification to user"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:28
-msgid ""
-"Send e-mail to registered user about changing his or her password. Be "
-"careful with this option, because when unchecked, the forgotten password "
-"request e-mails will be blocked too."
+#: modules/settings-page/views/settings.php:31
+msgid "Send e-mail to registered user about changing his or her password. Be careful with this option, because when unchecked, the forgotten password request e-mails will be blocked too."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:29
+#: modules/settings-page/views/settings.php:32
 msgid "E-mail address change notification to user"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:29
-msgid ""
-"Send e-mail to registered user about changing his or her E-mail address."
+#: modules/settings-page/views/settings.php:32
+msgid "Send e-mail to registered user about changing his or her E-mail address."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:30
+#: modules/settings-page/views/settings.php:33
 msgid "Password forgotten e-mail to user"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:30
-msgid ""
-"Send the forgotten password e-mail to registered user.<br/>(To prevent "
-"locking yourself out, sending of the forgotten password e-mail for "
-"administrators will still work)"
+#: modules/settings-page/views/settings.php:33
+msgid "Send the forgotten password e-mail to registered user.<br/>(To prevent locking yourself out, sending of the forgotten password e-mail for administrators will still work)"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:34
+#: modules/settings-page/views/settings.php:37
 msgid "Options for e-mails to administrators"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:38
-msgid "New user notification to admin"
+#: modules/settings-page/views/settings.php:41
+msgid "New user notification to site admin"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:38
+#: modules/settings-page/views/settings.php:42
 msgid "Sends an e-mail to the site admin after a new user is registered."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:39
+#. translators: 1: opening link tag to the network settings, 2: closing link tag.
+#: modules/settings-page/views/settings.php:50
+#, php-format
+msgid "Globally managed in the multisite %1$snetwork settings menu%2$s."
+msgstr ""
+
+#: modules/settings-page/views/settings.php:59
 msgid "Password change notification to admin"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:39
+#: modules/settings-page/views/settings.php:59
 msgid "Send e-mail to the blog admin of a user changing his or her password."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:41
-msgid "automatic WordPress core update e-mail"
+#: modules/settings-page/views/settings.php:61
+msgid "Automatic WordPress core update e-mail"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:41
-msgid ""
-"Sends an e-mail after a successful automatic WordPress core update to "
-"administrators. E-mails about failed updates will always be sent to the "
-"administrators and cannot be disabled."
+#: modules/settings-page/views/settings.php:61
+msgid "Sends an e-mail after a successful automatic WordPress core update to administrators. E-mails about failed updates will always be sent to the administrators and cannot be disabled."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:42
+#: modules/settings-page/views/settings.php:62
 msgid "Automatic WordPress plugin update e-mail"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:42
-msgid ""
-"Sends an e-mail after a successful automatic plugin update to "
-"administrators. E-mails about failed plugin updates will always be sent to "
-"the administrators"
+#: modules/settings-page/views/settings.php:62
+msgid "Sends an e-mail after a successful automatic plugin update to administrators. E-mails about failed plugin updates will always be sent to the administrators"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:43
+#: modules/settings-page/views/settings.php:63
 msgid "Automatic WordPress theme update e-mail"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:43
-msgid ""
-"Sends an e-mail after a successful automatic theme update to administrators. "
-"E-mails about failed theme updates will always be sent to the administrators"
+#: modules/settings-page/views/settings.php:63
+msgid "Sends an e-mail after a successful automatic theme update to administrators. E-mails about failed theme updates will always be sent to the administrators"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:50
+#: modules/settings-page/views/settings.php:70
 msgid "Password forgotten e-mail to administrator"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:50
+#: modules/settings-page/views/settings.php:70
 msgid "Send the forgotten password e-mail to administrators."
 msgstr ""
 
-#: modules/settings-page/views/settings.php:50
-msgid ""
-"Okay, this is a <strong style=\"color:#900\">DANGEROUS OPTION !</strong><br/"
-"> So be warned, because unchecking this option prevents sending out the "
-"forgotten password e-mail to all administrators. So hold on to your own "
-"password and uncheck this one at your own risk ;-)"
+#: modules/settings-page/views/settings.php:70
+msgid "Okay, this is a <strong style=\"color:#900\">DANGEROUS OPTION !</strong><br/> So be warned, because unchecking this option prevents sending out the forgotten password e-mail to all administrators. So hold on to your own password and uncheck this one at your own risk ;-)"
 msgstr ""
 
-#: modules/settings-page/views/settings.php:54
+#: modules/settings-page/views/settings.php:74
 msgid "Reset settings"
+msgstr ""
+
+#: modules/settings-page/views/settings.php:82
+msgid "Reset to default settings?"
 msgstr ""
 
 #: modules/user-email-changed.php:53
@@ -380,9 +335,7 @@ msgid "Request to change e-mailadress notification to admin"
 msgstr ""
 
 #: modules/user-email-changed.php:54
-msgid ""
-"Sends an e-mail to administrators after a user requested to update his or "
-"her e-mailaddress."
+msgid "Sends an e-mail to administrators after a user requested to update his or her e-mailaddress."
 msgstr ""
 
 #: modules/user-email-changed.php:55
@@ -390,17 +343,15 @@ msgid "User changed (confirmed) e-mail notification to admin"
 msgstr ""
 
 #: modules/user-email-changed.php:55
-msgid ""
-"Sends an e-mail to administrators after a user successfully updated his or "
-"her e-mailaddress."
+msgid "Sends an e-mail to administrators after a user successfully updated his or her e-mailaddress."
 msgstr ""
 
+#. translators: Do not translate USERNAME, ADMIN_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders.
 #: modules/user-email-changed.php:79
 msgid ""
 "Howdy admin,\n"
 "        \n"
-"        Recently a user requested to have his email address on his account "
-"changed.\n"
+"        Recently a user requested to have his email address on his account changed.\n"
 "\n"
 "        An email change request has been sent to ###EMAIL###\n"
 "        \n"
@@ -409,24 +360,20 @@ msgid ""
 "        ###SITEURL###"
 msgstr ""
 
-#: modules/user-email-changed.php:94
+#. translators: %s: site title.
+#: modules/user-email-changed.php:97
 #, php-format
 msgid "[%s] User requested Email Change"
 msgstr ""
 
-#: modules/user-email-changed.php:115
+#. translators: Do not translate USERNAME, ADMIN_EMAIL, NEW_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders.
+#: modules/user-email-changed.php:117
 msgid ""
 "Hi admin,\n"
 "\n"
-"    This notice confirms that the user ###USERNAME### changed his email "
-"address on ###SITENAME### from ###EMAIL### to ###NEW_EMAIL###.\n"
+"    This notice confirms that the user ###USERNAME### changed his email address on ###SITENAME### from ###EMAIL### to ###NEW_EMAIL###.\n"
 "\n"
 "    Regards,\n"
 "    All at ###SITENAME###\n"
 "    ###SITEURL###"
-msgstr ""
-
-#: modules/user-email-changed.php:130
-#, php-format
-msgid "[%s] User Email Changed"
 msgstr ""

@@ -23,9 +23,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function load_mod_famne_settings_page() {
+function famne_load_mod_settings_page() {
 	if ( is_admin() ) :
-		FAMNE::AddModule(
+		FAMNE::add_module(
 			'settings_page',
 			array(
 				'name'    => 'Settings page',
@@ -38,4 +38,4 @@ function load_mod_famne_settings_page() {
 	endif;
 }
 
-add_action( 'fa_mne_modules', 'load_mod_famne_settings_page' );
+add_action( 'fa_mne_modules', 'famne_load_mod_settings_page' );

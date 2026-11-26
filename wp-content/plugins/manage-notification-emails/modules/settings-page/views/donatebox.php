@@ -13,14 +13,12 @@
  * since: 1.3.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 <div class="donation-box">
-	<p class="description"><?php _e( 'If you find this plugin useful, you can show your appreciation here :-)', 'manage-notification-emails' ); ?></p>
-	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-		<input type="hidden" name="cmd" value="_s-xclick"/>
-		<input type="hidden" name="hosted_button_id" value="LTZWTLEDPULFE"/>
-		<input type="image" src="https://www.paypalobjects.com/nl_NL/NL/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal"/>
-		<img alt="" border="0" src="https://www.paypalobjects.com/nl_NL/i/scr/pixel.gif" width="1" height="1"/>
-	</form>
+	<p class="description"><?php esc_html_e( 'If you find this plugin useful, you can show your appreciation here :-)', 'manage-notification-emails' ); ?></p>
+	<a href="https://paypal.me/virgial/5" class="button" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-coffee" style="vertical-align:text-bottom"></span> <?php esc_html_e( 'Donate', 'manage-notification-emails' ); ?></a>
 </div>
 <div class="clear"></div>

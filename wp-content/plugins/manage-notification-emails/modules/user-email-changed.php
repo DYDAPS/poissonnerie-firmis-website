@@ -26,33 +26,33 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function load_mod_famne_user_email_changed() {
+function famne_load_mod_user_email_changed() {
 	$famne_options = FAMNE::get_option( 'famne_options' );
 
-	FAMNE::AddModule(
+	FAMNE::add_module(
 		'email_changed_email',
 		array(
 			'name'      => 'Add user e-mailaddress change notifier',
 			'version'   => '1.0.0',
 			'option_id' => array( 'send_email_change_request_email_to_admin', 'send_email_changed_email_to_admin' ),
-			'card'      => 'card_famne_user_email_changed',
+			'card'      => 'famne_card_user_email_changed',
 		)
 	);
 
 	/**
-	 * Card_famne_user_email_changed
+	 * Render the settings card for this module.
 	 *
-	 * @param  mixed $famne_options
+	 * @param  array $famne_options Plugin options.
 	 * @return void
 	 */
-	function card_famne_user_email_changed( $famne_options ) {
+	function famne_card_user_email_changed( $famne_options ) {
 		$active = ! empty( $famne_options['send_email_change_request_email_to_admin'] ) || ! empty( $famne_options['send_email_changed_email_to_admin'] );
 		?>
 	<div class="card">
 		<label class="switch"><div class="slider round <?php echo ( $active ? 'active' : '' ); ?>"><span class="on">ON</span><span class="off">OFF</span></div></label>
-		<h2 class="title"><?php _e( 'E-mail address changed by user', 'manage-notification-emails' ); ?></h2>
-		<?php print_checkbox( $famne_options, 'send_email_change_request_email_to_admin', __( 'Request to change e-mailadress notification to admin', 'manage-notification-emails' ), __( 'Sends an e-mail to administrators after a user requested to update his or her e-mailaddress.', 'manage-notification-emails' ) ); ?>
-		<?php print_checkbox( $famne_options, 'send_email_changed_email_to_admin', __( 'User changed (confirmed) e-mail notification to admin', 'manage-notification-emails' ), __( 'Sends an e-mail to administrators after a user successfully updated his or her e-mailaddress.', 'manage-notification-emails' ) ); ?>
+		<h2 class="title"><?php esc_html_e( 'E-mail address changed by user', 'manage-notification-emails' ); ?></h2>
+		<?php famne_print_checkbox( $famne_options, 'send_email_change_request_email_to_admin', __( 'Request to change e-mailadress notification to admin', 'manage-notification-emails' ), __( 'Sends an e-mail to administrators after a user requested to update his or her e-mailaddress.', 'manage-notification-emails' ) ); ?>
+		<?php famne_print_checkbox( $famne_options, 'send_email_changed_email_to_admin', __( 'User changed (confirmed) e-mail notification to admin', 'manage-notification-emails' ), __( 'Sends an e-mail to administrators after a user successfully updated his or her e-mailaddress.', 'manage-notification-emails' ) ); ?>
 	</div>
 		<?php
 	}
@@ -66,7 +66,8 @@ function load_mod_famne_user_email_changed() {
 		 */
 		function famne_user_email_change_request_to_admin() {
 			// stop if email is not right.
-			$email = sanitize_email( $_POST['email'] );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by core in profile.php before this action fires.
+			$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 			if ( ! is_email( $email ) || email_exists( $email ) ) {
 				return;
 			}
@@ -84,14 +85,16 @@ function load_mod_famne_user_email_changed() {
         
         Regards,
         All at ###SITENAME###
-        ###SITEURL###'
+        ###SITEURL###',
+				'manage-notification-emails'
 			);
 
 			$email_text = str_replace( '###EMAIL###', $email, $email_text );
 			$email_text = str_replace( '###SITENAME###', $blog_name, $email_text );
 			$email_text = str_replace( '###SITEURL###', home_url(), $email_text );
 
-			wp_mail( $admin_email, sprintf( __( '[%s] User requested Email Change' ), $blog_name ), $email_text );
+			/* translators: %s: site title. */
+			wp_mail( $admin_email, sprintf( __( '[%s] User requested Email Change', 'manage-notification-emails' ), $blog_name ), $email_text );
 		}
 		add_action( 'personal_options_update', 'famne_user_email_change_request_to_admin' );
 
@@ -99,11 +102,11 @@ function load_mod_famne_user_email_changed() {
 
 	if ( ! empty( $famne_options['send_email_changed_email_to_admin'] ) ) :
 		/**
-		 * Famne_user_email_changed_email_to_admin
+		 * Also notify the site admin when a user changed their email address.
 		 *
-		 * @param  array $email_change_email
-		 * @param  mixed $user
-		 * @param  mixed $userdata
+		 * @param  array $email_change_email Email data used for the user notification.
+		 * @param  array $user               The original user array.
+		 * @param  array $userdata           The updated user array.
 		 * @return array $email_change_email
 		 */
 		function famne_user_email_changed_email_to_admin( $email_change_email, $user, $userdata ) {
@@ -118,7 +121,8 @@ function load_mod_famne_user_email_changed() {
 
     Regards,
     All at ###SITENAME###
-    ###SITEURL###'
+    ###SITEURL###',
+				'manage-notification-emails'
 			);
 
 			$email_text = str_replace( '###USERNAME###', $user['user_login'], $email_text );
@@ -127,7 +131,8 @@ function load_mod_famne_user_email_changed() {
 			$email_text = str_replace( '###SITENAME###', $blog_name, $email_text );
 			$email_text = str_replace( '###SITEURL###', home_url(), $email_text );
 
-			wp_mail( $admin_email, sprintf( __( '[%s] User Email Changed' ), $blog_name ), $email_text, $email_change_email['headers'] );
+			/* translators: Email change notification email subject. %s: Site title. */
+			wp_mail( $admin_email, sprintf( __( '[%s] Email Changed' ), $blog_name ), $email_text, $email_change_email['headers'] ); // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Core string, uses the WordPress translation.
 
 			return $email_change_email;
 		}
@@ -137,4 +142,4 @@ function load_mod_famne_user_email_changed() {
 	endif;
 }
 
-add_action( 'fa_mne_modules', 'load_mod_famne_user_email_changed' );
+add_action( 'fa_mne_modules', 'famne_load_mod_user_email_changed' );
