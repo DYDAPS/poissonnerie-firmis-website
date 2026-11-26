@@ -116,7 +116,7 @@ class Image_Backup {
 	}
 
 	private static function delete_backup_file( int $image_id, string $image_size, string $backup_path ): void {
-		$resolved_path = Image_Backup_Path_Validator::resolve( $backup_path );
+		$resolved_path = Image_Backup_Path_Validator::resolve( $image_id, $image_size, $backup_path );
 
 		if ( null === $resolved_path ) {
 			Logger::warn(

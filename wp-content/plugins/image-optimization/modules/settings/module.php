@@ -22,6 +22,7 @@ class Module extends Module_Base {
 	const SETTING_PREFIX = 'image_optimizer_';
 	const SETTING_GROUP = 'image_optimizer_settings';
 	const SETTING_BASE_SLUG = 'image-optimization-settings';
+	const BULK_OPTIMIZATION_SLUG = 'image-optimization-bulk-optimization';
 	const SETTING_CAPABILITY = 'manage_options';
 
 	public function get_name(): string {
@@ -116,16 +117,27 @@ class Module extends Module_Base {
 
 	public function register_page() {
 		add_submenu_page(
-			'elementor-home',
-			__( 'Image Optimization', 'image-optimization' ),
-			__( 'Image Optimization', 'image-optimization' ),
+			'upload.php',
+			__( 'Image Optimizer', 'image-optimization' ),
+			__( 'Image Optimizer', 'image-optimization' ),
 			self::SETTING_CAPABILITY,
 			self::SETTING_BASE_SLUG,
 			[ $this, 'render_app' ],
-			50
+			11
 		);
 
-		$this->add_menu_item_class( 'elementor-home', self::SETTING_BASE_SLUG, 'image-optimizer-menu' );
+		add_submenu_page(
+			'upload.php',
+			__( 'Bulk Optimization', 'image-optimization' ),
+			__( 'Bulk Optimization', 'image-optimization' ),
+			self::SETTING_CAPABILITY,
+			self::BULK_OPTIMIZATION_SLUG,
+			[ $this, 'render_app' ],
+			12
+		);
+
+		$this->add_menu_item_class( 'upload.php', self::SETTING_BASE_SLUG, 'image-optimizer-menu' );
+		$this->add_menu_item_class( 'upload.php', self::BULK_OPTIMIZATION_SLUG, 'image-optimizer-menu' );
 	}
 
 	private function add_menu_item_class( string $parent_slug, string $menu_slug, string $class ) {

@@ -4,7 +4,7 @@ Tags: image optimization, image compression, convert webp, convert avif, perform
 Requires at least: 6.7
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.7.7
+Stable tag: 1.7.8
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -49,7 +49,7 @@ By tailoring compression to the level you need, your visitors will enjoy faster 
 
 = Get started today =
 
-For more information about Image Optimizer, visit our [official website](https://go.elementor.com/wp-repo-description-tab-io-product-page/) or [Try It Now](https://go.elementor.com/wp-repo-description-tab-io-free-trial/).
+For more information about Image Optimization, visit our [official website](https://go.elementor.com/wp-repo-description-tab-io-product-page/) or [Try It Now](https://go.elementor.com/wp-repo-description-tab-io-free-trial/).
 If you have any questions or need support, feel free to [contact us](https://go.elementor.com/wp-repo-description-tab-io-contact-us/) or visit our [help center](https://go.elementor.com/wp-repo-description-tab-io-help-center/).
 
 This plugin requires a connection to an active Elementor account in order to identify the user and provide the purchased service. This connection is triggered manually by the user via the plugin’s settings panel.
@@ -118,6 +118,11 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 5. Image Optimization - Image Optimization in the Media Uploader
 
 == Changelog ==
+
+= 1.7.8 2026-11-17 =
+* Tweak: Moved the plugin menu under the Media menu
+* Tweak: Renamed the sidebar menu title to Image Optimizer
+* Security: Fixed an arbitrary file deletion vulnerability
 
 = 1.7.7 2026-09-16 =
 * Tweak: Security enhancements for REST access control

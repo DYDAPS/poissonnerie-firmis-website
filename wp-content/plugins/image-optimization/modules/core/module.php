@@ -7,6 +7,7 @@ use ImageOptimization\Modules\Optimization\{
 	Rest\Optimize_Bulk,
 };
 use ImageOptimization\Modules\Settings\Classes\Settings;
+use ImageOptimization\Modules\Settings\Module as Settings_Module;
 use ImageOptimization\Modules\Backups\Rest\{
 	Restore_All,
 	Remove_Backups,
@@ -354,6 +355,31 @@ class Module extends Module_Base {
 		return $one_facade && $one_facade->utils()->is_connected();
 	}
 
+	/**
+	 * Registers protected post meta to prevent unauthorized modifications.
+	 *
+	 * Protects image_optimizer_metadata from being modified via XML-RPC, REST API,
+	 * or other external interfaces by users without proper permissions.
+	 * This prevents the APT-250 / CVE-2026-109889 vulnerability where Authors
+	 * could manipulate backup paths to delete arbitrary files.
+	 *
+	 * @return void
+	 */
+	public function register_protected_meta(): void {
+		register_post_meta(
+			'attachment',
+			Image_Meta::IMAGE_OPTIMIZER_METADATA_KEY,
+			[
+				'type' => 'array',
+				'single' => true,
+				'show_in_rest' => false,
+				'auth_callback' => function( $allowed, $meta_key, $post_id, $user_id, $cap, $caps ) {
+					return false;
+				},
+			]
+		);
+	}
+
 	public static function on_deactivation(): void {
 		$optimization_query = ( new Operation_Query() )
 			->set_queue( Async_Operation_Queue::OPTIMIZE )
@@ -415,8 +441,7 @@ class Module extends Module_Base {
 	public function add_bulk_optimization_links(): void {
 		$page_url = add_query_arg(
 			[
-				'page' => 'image-optimization-settings',
-				'tab' => 'image-optimization-bulk-optimization',
+				'page' => Settings_Module::BULK_OPTIMIZATION_SLUG,
 			],
 			admin_url( 'admin.php' )
 		);
@@ -450,6 +475,7 @@ class Module extends Module_Base {
 	public function __construct() {
 		$this->register_components();
 
+		add_action( 'init', [ $this, 'register_protected_meta' ] );
 		add_action( 'action_scheduler_init', [ Migration_Manager::class, 'init' ] );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_global_assets' ] );

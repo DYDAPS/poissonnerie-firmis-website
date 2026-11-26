@@ -10,6 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Image_DB_Update {
 	public static function update_posts_table_urls( string $old_url, string $new_url ) {
+		if ( '' === $old_url || '' === $new_url ) {
+			return;
+		}
+
 		$query = new WP_Query( [
 			'post_type' => 'any',
 			'post_status' => 'any',

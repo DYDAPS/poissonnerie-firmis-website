@@ -53,7 +53,7 @@ class Image_Restore {
 			$current_path = $image->get_file_path( $image_size );
 
 			if ( $backup_path && $current_path ) {
-				$resolved_backup_path = Image_Backup_Path_Validator::resolve( $backup_path );
+				$resolved_backup_path = Image_Backup_Path_Validator::resolve( $image_id, $image_size, $backup_path );
 
 				if ( null === $resolved_backup_path ) {
 					Logger::warn(

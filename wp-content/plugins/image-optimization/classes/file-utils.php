@@ -74,15 +74,36 @@ class File_Utils {
 
 		$upload_info = wp_upload_dir();
 		$url_base = $upload_info['baseurl'];
+		$basedir = $upload_info['basedir'];
 
-		$parts = preg_split(
-			'/\/wp-content\/uploads/',
-			$full_path
-		);
+		$normalized_path = wp_normalize_path( $full_path );
+
+		$uploads_base_real = realpath( $basedir );
+		if ( false !== $uploads_base_real ) {
+			$uploads_base = wp_normalize_path( $uploads_base_real );
+			$uploads_prefix = trailingslashit( $uploads_base );
+
+			if ( 0 === strpos( $normalized_path, $uploads_prefix ) ) {
+				$relative_path = substr( $normalized_path, strlen( $uploads_prefix ) );
+				$url = trailingslashit( $url_base ) . $relative_path;
+				$locale->reset_to_original();
+				return $url;
+			}
+		}
+
+		$uploads_base = wp_normalize_path( $basedir );
+		$uploads_prefix = trailingslashit( $uploads_base );
+
+		if ( 0 === strpos( $normalized_path, $uploads_prefix ) ) {
+			$relative_path = substr( $normalized_path, strlen( $uploads_prefix ) );
+			$url = trailingslashit( $url_base ) . $relative_path;
+		} else {
+			$url = '';
+		}
 
 		$locale->reset_to_original();
 
-		return $url_base . $parts[1];
+		return $url;
 	}
 
 	public static function format_file_size( int $file_size_in_bytes, $decimals = 2 ): string {

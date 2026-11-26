@@ -63,7 +63,7 @@ class Settings_Pointer {
 
 				jQuery( document ).ready( function( $ ) {
 
-						const target = $('#toplevel_page_elementor-home').hasClass('wp-not-current-submenu') ? $('#toplevel_page_elementor-home') : $( '.image-optimizer-menu' );
+						const target = $('#menu-media').hasClass('wp-not-current-submenu') ? $('#menu-media') : $( '.image-optimizer-menu' );
 
 						target.pointer( {
 							content: '<?php echo wp_kses( $pointer_content, $allowed_tags ); ?>',
