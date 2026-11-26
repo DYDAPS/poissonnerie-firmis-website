@@ -351,13 +351,13 @@ $cmplz_integrations_list = apply_filters( 'cmplz_integrations', array(
 
 	'facebook-for-wordpress' => array(
 		'constant_or_function' => 'FacebookPixelPlugin\\FacebookForWordpress',
-		'label'                => 'Official Facebook Pixel',
+		'label'                => 'Meta Pixel for WordPress',
 		'firstparty_marketing' => false,
 	),
 
 	'facebook-for-woocommerce' => array(
 		'constant_or_function' => 'facebook_for_woocommerce',
-		'label'                => 'Facebook for WooCommerce',
+		'label'                => 'Meta for WooCommerce',
 		'firstparty_marketing' => false,
 	),
 
@@ -791,20 +791,13 @@ function cmplz_uses_woocmmerce(){
  */
 
 function cmplz_placeholder_disabled( $service ) {
-	$disabled_placeholders = get_option( 'cmplz_disabled_placeholders',
-		array() );
+	$disabled_placeholders = (array) get_option( 'cmplz_disabled_placeholders', array() );
 
-	if ( in_array( $service, $disabled_placeholders ) ) {
-		return true;
-	}
-	//check also other variation
-	$service = str_replace( '-', "_", $service );
-	if ( in_array( $service, $disabled_placeholders ) ) {
-		return true;
-	}
-
-	return false;
-
+	// matches the legacy underscore variation the pre 7.0 settings page stored, and is the same
+	// matcher the settings UI reads with, so the two cannot disagree about a stored id. Note this
+	// unifies the matching rule only: has_placeholder() still resolves ids its own way, and the
+	// writer is keyed on settings ids while this is queried with blocked-script names.
+	return cmplz_placeholder_id_in_list( (string) $service, $disabled_placeholders );
 }
 
 /**

@@ -6,7 +6,7 @@ Requires at least: 5.9
 License: GPL2
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 7.5.5
+Stable tag: 7.5.8
 
 Publish your cookie banner or notice in minutes. Automatically scan cookies, and create policies to align with GDPR, CCPA, and Google Consent Mode. 
 
@@ -226,6 +226,52 @@ Complianz uses geo-based detection to show the correct consent banner for each v
 The free version works on a single site. Complianz Premium supports WordPress multisite networks and includes features for managing consent across multiple domains. 
 
 == Changelog ==
+= 7.5.8 =
+* November 25th, 2026
+* Security: The cookie blocker only downloads placeholder images from the thumbnail hosts of the supported services, and only when the response is a raster image.
+* Security: Fixed a Stored Cross-Site Scripting vulnerability in the Thrive Architect and Elementor cookie blockers.
+* Security: Updated front-end dependencies, including DOMPurify, to remediate known vulnerabilities in the Settings and Gutenberg bundles.
+* Fix: Visitors lost their consent and saw the banner again when a cached page carried an outdated cookie policy ID.
+* Fix: Saving the wizard after an update no longer changes the active policy ID when no setting was changed, which could re-show the consent banner on cached sites.
+* Fix: The dashboard no longer marks a completed wizard as urgent when an update adds new settings that have a default answer.
+* Fix: The banner stylesheet could be served empty or incomplete while it was being regenerated, leaving the banner unstyled.
+* Fix: Meta Pixel for WordPress and Meta for WooCommerce now follow the consent choice, and no events are sent to Meta before marketing consent.
+* Fix: Prevent a fatal error in wp-admin when the cookie scan page list cache holds an invalid value.
+* Fix: Admin pages no longer wait on the dynamic notifications request, and it no longer repeats on every load when the cache does not persist.
+* Fix: Dynamic notifications now load for languages without a region suffix, such as Finnish and Catalan, and fall back to English for languages the notification service does not support.
+* Fix: Fatal error on WP-Cron when the Website Scan availability check received an invalid response.
+* Fix: Updated "more info" links in the dashboard to the new help center URLs.
+
+= 7.5.7 =
+* November 4th, 2026
+* Fix: On sites with more than one consent type, the cookie banner briefly appeared unstyled with an oversized close icon, because its stylesheet was only fetched after the banner script ran.
+* Fix: The cookie banner stylesheet URL in the page source kept its unresolved {banner_id} and {type} placeholders, which search engines reported as a 404. With a single consent type, the URL is now resolved server-side. Code filtering css_file through cmplz_cookiebanner_settings should no longer assume it contains placeholders.
+* Fix: With Google Site Kit inserting the Tag Manager container, Complianz added a second, empty Tag Manager container to the page. With Consent Mode enabled the signals are now printed in the header, before Site Kit's container, instead of in the footer.
+* Fix: On sites upgraded from before 7.0, a placeholder switched off on the old Integrations page could not be switched back on for services with a dash in their name, such as Google Maps: Integrations > Services reported the placeholder as enabled while the content was blocked with no placeholder at all, and the toggle had no effect. The setting is now reported accurately and can be changed again from Integrations > Services.
+* Fix: Switching a placeholder on or off now takes effect on the front end immediately, instead of after up to 30 minutes.
+* Fix: On some setups, the cookie banner and script blocking could be silently absent because the cookie-warning check ran before other plugins' filters were registered.
+* Fix: The "accept service" button label showed a raw {Service} placeholder in some German translations.
+* Fix: The accessible name of the placeholder buttons now includes their visible text (WCAG 2.5.3).
+* Fix: Google Analytics 4 sent the first page view of a returning visitor as unconsented. Consent Mode now waits up to 500 ms for the saved consent, adjustable with the cmplz_gtag_wait_for_update filter.
+
+= 7.5.6 =
+* October 13th, 2026
+* Security: Rate-limited the public data request endpoint and removed an email enumeration oracle.
+* Security: Fixed a Stored XSS vulnerability in the Document block.
+* Security: Fixed a Stored Cross-Site Scripting vulnerability in the YotuWP cookie blocker.
+* Fix: Website Scan now recovers from a token error state instead of staying stuck.
+* Fix: Vimeo placeholder thumbnails now use HTTPS for the oEmbed request and cache failed lookups, preventing repeated requests on every page load.
+* Fix: On sites with a non-English default language, strings were registered with WPML as English, making them untranslatable.
+* Fix: Corrected the "Dismiss on scroll" tooltip and limited dismiss on scroll and dismiss on timeout to opt-out banners, where they actually apply.
+* Fix: Only the first [cmplz-manage-consent] shortcode on a page was initialized, leaving the other ones empty with a "without javascript support" notice.
+* Fix: Cookie Policy page detection now matches the configured page, including translated pages.
+* Fix: The cookie banner no longer stays dismissed site-wide when the [cmplz-manage-consent] shortcode is used outside the Cookie Policy page.
+* Fix: The cookie banner no longer fails to show after a cookie policy change on sites with a page cache, which left visitors without a banner and with all consent denied.
+* Fix: On sites using more than one consent type, the Manage consent button referenced the wrong cookie banner in its aria-controls attribute.
+* Fix: With the soft cookie wall enabled, a page using the consent shortcodes could stay unclickable with no banner visible.
+* Fix: On sites with multiple cookie banners, all banners registered their WPML strings under the same names, so one banner's texts overwrote another's. Translations that were shared between banners are marked as needing an update in WPML String Translation.
+* Fix: On locked premium settings, the upgrade link text no longer showed raw placeholder tokens.
+
 = 7.5.5 =
 * September 8th, 2026
 * Security: Fixed a CSV/Formula Injection vulnerability in the Data Requests CSV export.
@@ -267,6 +313,7 @@ The free version works on a single site. Complianz Premium supports WordPress mu
 * Feature: Amazon consent signal integration — marketing consent is now passed to the Amazon ads library on consent and revoke.
 * Enhancement: WordPress 7.0 Interactivity API router navigation for the cookie banner is now an opt-in setting under Settings → General. When disabled (default), a compatibility fallback is used on all WordPress versions.
 * Enhancement: Removed the discontinued Burst Statistics integration and cross-promotion code.
+* Security: Hardened the Website Scan webhook endpoint with HMAC-signed authentication, closing a gap where forged scan results could be submitted without authentication.
 * Security: The premium upgrade installer now requires the install_plugins capability and only downloads packages from the official vendor API.
 * Fix: Fatal error "Class cmplz_wsc not found" during background Website Scan on sites without an active admin session (regression since 7.5.0).
 * Fix: Corrected lawful basis options for Brazil region, ensuring the privacy statement renders the selected basis accurately.

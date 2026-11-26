@@ -238,29 +238,41 @@ function cmplz_add_cookiebanner_settings( $fields ) {
 
 			/*
 			 *
-			 * US settings
+			 * Opt-out settings
 			 *
 			 */
 
 			array(
-				'id'          => 'dismiss_on_scroll',
-				'menu_id'     => 'banner-general',
-				'group_id'    => 'banner-general',
-				'data_target' => 'banner',
-				'type'        => 'checkbox',
-				'label'       => __( 'Dismiss on scroll', 'complianz-gdpr' ),
-				'tooltip'     => __( 'When dismiss on scroll is enabled, the consent banner will be dismissed as soon as the user scrolls. In opt-in regions (ex.: GDPR), this denies all cookies. In opt-out regions (ex.: CCPA), this allows cookies.', 'complianz-gdpr' ),
-				'default'     => false,
+				'id'               => 'dismiss_on_scroll',
+				'menu_id'          => 'banner-general',
+				'group_id'         => 'banner-general',
+				'data_target'      => 'banner',
+				'type'             => 'checkbox',
+				'label'            => __( 'Dismiss on scroll', 'complianz-gdpr' ),
+				'tooltip'          => __( 'When dismiss on scroll is enabled, the consent banner will be dismissed once the user scrolls 400 pixels down the page, which keeps cookies enabled. Note: this only applies to opt-out regions (e.g. CCPA). In opt-in regions (e.g. GDPR), the banner will remain visible until the user takes an action, regardless of this setting.', 'complianz-gdpr' ),
+				'default'          => false,
+				'react_conditions' => array(
+					'relation' => 'AND',
+					array(
+						'consent_type' => 'optout',
+					),
+				),
 			),
 			array(
-				'id'          => 'dismiss_on_timeout',
-				'menu_id'     => 'banner-general',
-				'group_id'    => 'banner-general',
-				'data_target' => 'banner',
-				'type'        => 'checkbox',
-				'label'       => __( 'Dismiss on timeout', 'complianz-gdpr' ),
-				'tooltip'     => __( 'When dismiss on timeout is enabled, the consent banner will be dismissed after 10 seconds, or the time you choose below. Note: this only applies to opt-out regions (e.g. CCPA). In opt-in regions (e.g. GDPR), the banner will remain visible until the user takes an action, regardless of this setting.', 'complianz-gdpr' ),
-				'default'     => false,
+				'id'               => 'dismiss_on_timeout',
+				'menu_id'          => 'banner-general',
+				'group_id'         => 'banner-general',
+				'data_target'      => 'banner',
+				'type'             => 'checkbox',
+				'label'            => __( 'Dismiss on timeout', 'complianz-gdpr' ),
+				'tooltip'          => __( 'When dismiss on timeout is enabled, the consent banner will be dismissed after 10 seconds, or the time you choose below. Note: this only applies to opt-out regions (e.g. CCPA). In opt-in regions (e.g. GDPR), the banner will remain visible until the user takes an action, regardless of this setting.', 'complianz-gdpr' ),
+				'default'          => false,
+				'react_conditions' => array(
+					'relation' => 'AND',
+					array(
+						'consent_type' => 'optout',
+					),
+				),
 			),
 			array(
 				'id'               => 'dismiss_timeout',
@@ -272,6 +284,9 @@ function cmplz_add_cookiebanner_settings( $fields ) {
 				'default'          => 10,
 				'react_conditions' => array(
 					'relation' => 'AND',
+					array(
+						'consent_type' => 'optout',
+					),
 					array(
 						'dismiss_on_timeout' => true,
 					),
@@ -419,12 +434,12 @@ function cmplz_add_cookiebanner_settings( $fields ) {
 					"Unlike the regular cookie wall, the soft cookie wall doesn't block visitors that do not deny consent or dismiss the banner. It will however forces a choice before visitors enter your website.",
 					'complianz-gdpr'
 					/* translators: %1$s: opening link tag, %2$s: closing link tag */
-				) . ' ' . cmplz_sprintf( __( 'Read more about %1$sthe soft cookie wall%2$s.', 'complianz-gdpr' ), '<a target="_blank" href="https://complianz.io/the-soft-cookie-wall/" aria-label="Read more about the soft cookie wall">', '</a>' ),
+				) . ' ' . cmplz_sprintf( __( 'Read more about %1$sthe soft cookie wall%2$s.', 'complianz-gdpr' ), '<a target="_blank" href="https://complianz.io/help/wordpress/configuration/the-soft-cookie-wall/" aria-label="Read more about the soft cookie wall">', '</a>' ),
 				'help'             => array(
 					'label' => 'default',
 					'title' => __( 'Soft cookie wall', 'complianz-gdpr' ),
 					'text'  => __( 'Read more about our privacy-friendly cookie wall.', 'complianz-gdpr' ),
-					'url'   => 'https://complianz.io/the-soft-cookie-wall/',
+					'url'   => 'https://complianz.io/help/wordpress/configuration/the-soft-cookie-wall/',
 				),
 				'react_conditions' => array(
 					'relation' => 'AND',

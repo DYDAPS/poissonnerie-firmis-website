@@ -159,6 +159,50 @@ if ( !function_exists('cmplz_sanitize_title_preserve_uppercase')) {
 	}
 }
 
+if ( ! function_exists( 'cmplz_canonical_placeholder_id' ) ) {
+	/**
+	 * Get the canonical form of a placeholder id
+	 *
+	 * The dash form is canonical: that is what sanitize_title() leaves us with for the ids the
+	 * settings UI and the blocked scripts use. Pre 7.0 versions stored the underscore form in
+	 * cmplz_disabled_placeholders, so both forms are still in the wild.
+	 *
+	 * @param string $id Placeholder id in either the dash or the legacy underscore form.
+	 *
+	 * @return string
+	 */
+	function cmplz_canonical_placeholder_id( string $id ): string {
+		return str_replace( '_', '-', $id );
+	}
+}
+
+if ( ! function_exists( 'cmplz_placeholder_id_in_list' ) ) {
+	/**
+	 * Check if a placeholder id occurs in a list of placeholder ids, in whichever form it is stored
+	 *
+	 * Both sides are canonicalized, so a legacy underscore entry matches the dash form the rest of
+	 * the plugin queries with, and the other way around. This is the single matcher for
+	 * cmplz_disabled_placeholders: the reader and the enforcer used to apply different rules to the
+	 * same option, which left a stale underscore entry disabling a placeholder the settings UI
+	 * reported as enabled.
+	 *
+	 * @param string $id  Placeholder id to look for.
+	 * @param array  $ids Stored placeholder ids, in any form.
+	 *
+	 * @return bool
+	 */
+	function cmplz_placeholder_id_in_list( string $id, array $ids ): bool {
+		$id = cmplz_canonical_placeholder_id( $id );
+		foreach ( $ids as $stored_id ) {
+			if ( is_string( $stored_id ) && cmplz_canonical_placeholder_id( $stored_id ) === $id ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+
 if ( ! function_exists( 'cmplz_uses_google_analytics' ) ) {
 
 	/**
@@ -909,10 +953,16 @@ if ( ! function_exists( 'cmplz_page_is_of_type' ) ) {
 		global $post;
 		if ( !$post ) return false;
 
-		$post_id = $post->ID;
+		$post_id = (int) $post->ID;
 		foreach ( $regions as $region ) {
 			$policy_id = COMPLIANZ::$document->get_shortcode_page_id( $type, $region );
-			if ( $policy_id === $post_id ) {
+			if ( ! $policy_id ) {
+				continue;
+			}
+			// Map to the current language, like the other consumers of get_shortcode_page_id() do:
+			// the lookup finds the source-language page, so a translated document would not match.
+			$policy_id = apply_filters( 'wpml_object_id', $policy_id, 'page', true, substr( get_locale(), 0, 2 ) );
+			if ( (int) $policy_id === $post_id ) {
 				return true;
 			}
 		}
@@ -1799,9 +1849,110 @@ if ( ! function_exists( 'cmplz_count_socialmedia' ) ) {
 }
 
 
+if ( ! function_exists( 'cmplz_image_mime_from_file' ) ) {
+	/**
+	 * Detect a raster image type from the file's magic bytes.
+	 *
+	 * Only the formats a placeholder can be are accepted: JPEG, PNG, GIF and WebP. Anything else,
+	 * SVG and other XML or text in particular, returns false. The check reads the file itself, not
+	 * its extension or the remote Content-Type, so it also holds for a download named .jpg.
+	 *
+	 * @param string $file Path to a local file.
+	 *
+	 * @return string|false Mime type, or false when the file is not an accepted raster image.
+	 */
+	function cmplz_image_mime_from_file( $file ) {
+		if ( ! is_string( $file ) || ! is_readable( $file ) ) {
+			return false;
+		}
+		// Direct read of the first bytes of a local temp file: WP_Filesystem has no partial binary read.
+		$handle = fopen( $file, 'rb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		if ( ! $handle ) {
+			return false;
+		}
+		$head = fread( $handle, 12 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+		if ( ! is_string( $head ) || strlen( $head ) < 12 ) {
+			return false;
+		}
+
+		if ( "\xFF\xD8\xFF" === substr( $head, 0, 3 ) ) {
+			return 'image/jpeg';
+		}
+		if ( "\x89PNG\r\n\x1A\n" === substr( $head, 0, 8 ) ) {
+			return 'image/png';
+		}
+		if ( 'GIF87a' === substr( $head, 0, 6 ) || 'GIF89a' === substr( $head, 0, 6 ) ) {
+			return 'image/gif';
+		}
+		if ( 'RIFF' === substr( $head, 0, 4 ) && 'WEBP' === substr( $head, 8, 4 ) ) {
+			return 'image/webp';
+		}
+
+		return false;
+	}
+}
+
+if ( ! function_exists( 'cmplz_download_host_allowed' ) ) {
+	/**
+	 * Whether a placeholder may be downloaded from this URL.
+	 *
+	 * The URL has to be http(s) to one of the thumbnail hosts of the services that use
+	 * cmplz_download_to_site(). A URL that only mentions such a host in its path or query, or that
+	 * carries user info before the host, is refused.
+	 *
+	 * @param string $src Absolute URL.
+	 *
+	 * @return bool
+	 */
+	function cmplz_download_host_allowed( $src ) {
+		$parts = wp_parse_url( (string) $src );
+		if ( ! is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+			return false;
+		}
+		if ( ! in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true ) ) {
+			return false;
+		}
+		if ( isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
+			return false;
+		}
+
+		/**
+		 * Hosts placeholders may be downloaded from. An entry also matches its subdomains.
+		 *
+		 * @param string[] $hosts
+		 */
+		$allowed = apply_filters(
+			'cmplz_download_allowed_hosts',
+			array(
+				'img.youtube.com',
+				'i.ytimg.com',
+				'i.vimeocdn.com',
+				'dmcdn.net',
+				'maps.googleapis.com',
+			)
+		);
+		$host    = strtolower( $parts['host'] );
+		foreach ( (array) $allowed as $allowed_host ) {
+			$allowed_host = strtolower( trim( (string) $allowed_host ) );
+			if ( '' === $allowed_host ) {
+				continue;
+			}
+			if ( $host === $allowed_host || substr( $host, - strlen( '.' . $allowed_host ) ) === '.' . $allowed_host ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+
 if ( ! function_exists( 'cmplz_download_to_site' ) ) {
 	/**
 	 * Download a placeholder from youtube or video to this website
+	 *
+	 * The URL must be on an allowed thumbnail host and the response must be a JPEG, PNG, GIF or
+	 * WebP by its magic bytes; otherwise nothing is written and the default placeholder is returned.
 	 *
 	 * @param string      $src
 	 * @param bool|string $id
@@ -1818,10 +1969,15 @@ if ( ! function_exists( 'cmplz_download_to_site' ) ) {
 		) {
 			$src = str_replace( '//', 'https://', $src );
 		}
+		if ( ! cmplz_download_host_allowed( $src ) ) {
+			return cmplz_default_placeholder();
+		}
 		if ( ! $id ) {
 			$id = time();
 		}
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		if ( ! function_exists( 'download_url' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
 		$upload_dir = cmplz_upload_dir('placeholders');
 
 		//set the path
@@ -1833,8 +1989,9 @@ if ( ! function_exists( 'cmplz_download_to_site' ) ) {
 		//download file
 		$tmpfile = download_url( $src, $timeout = 25 );
 
-		//check for errors
-		if ( is_wp_error( $tmpfile ) ) {
+		// Check for errors, and that the response is a raster image before it is stored anywhere web-accessible.
+		$mime = is_wp_error( $tmpfile ) ? false : cmplz_image_mime_from_file( $tmpfile );
+		if ( ! $mime ) {
 			$new_src = cmplz_default_placeholder();
 		} else {
 			//remove current file
@@ -1852,9 +2009,9 @@ if ( ! function_exists( 'cmplz_download_to_site' ) ) {
 			unlink( $tmpfile );
 		} // must unlink afterwards
 
-		if ( file_exists( $file ) ) {
+		if ( $mime && file_exists( $file ) ) {
 			try {
-				$new_src = cmplz_create_webp( $file, $new_src );
+				$new_src = cmplz_create_webp( $file, $new_src, $mime );
 			} catch ( Exception $e ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					error_log( $e->getMessage() );
@@ -1913,7 +2070,17 @@ if ( ! function_exists( 'cmplz_download_to_site' ) ) {
 
 if (!function_exists('cmplz_create_webp')){
 
-	function cmplz_create_webp($file, $new_src) {
+	/**
+	 * Convert a downloaded placeholder to WebP.
+	 *
+	 * @param string $file    Local path of the downloaded image.
+	 * @param string $new_src Public URL of that file.
+	 * @param string $mime    Mime type detected from the file content; passed to the image editor so
+	 *                        the file is decoded as what it is, not as what its extension says.
+	 *
+	 * @return string The WebP URL when the conversion succeeded, otherwise $new_src.
+	 */
+	function cmplz_create_webp( $file, $new_src, $mime = '' ) {
 		switch ( $file ) {
 			case strpos( $file, '.jpeg' )!==false:
 			case strpos( $file, '.jpg' )!==false:
@@ -1928,7 +2095,12 @@ if (!function_exists('cmplz_create_webp')){
 		//@todo: new filename is returned by save, so can be used for output instead of brute force extension replace.
 		$webp_file = str_replace( $ext, ".webp", $file );
 		$webp_new_src = str_replace( $ext, ".webp", $new_src );
-		$image = wp_get_image_editor($file);
+
+		$image = wp_get_image_editor( $file, $mime ? array( 'mime_type' => $mime ) : array() );
+		if ( is_wp_error( $image ) ) {
+			return $new_src;
+		}
+
 		$result = $image->save($webp_file, 'image/webp');
 		if ( is_wp_error( $result ) ) {
 			return $new_src;
@@ -2231,17 +2403,53 @@ if ( ! function_exists( 'cmplz_cdb_reference_in_policy' ) ) {
 	}
 }
 
-/**
- * Register a translation
- *
- * @param $fieldname
- *
- * @return bool
- */
+if ( ! function_exists( 'cmplz_get_wpml_source_language' ) ) {
+	/**
+	 * Get the source language to declare when registering a string with WPML.
+	 *
+	 * When no source language is passed, WPML resolves one itself: the language configured for
+	 * the string domain, or a hardcoded 'en' when that is unset. That labels our already
+	 * translated strings as English, and on a site with a non English default language they can
+	 * then no longer be translated, because WPML never offers a string for translation into its
+	 * own source language.
+	 *
+	 * @param string|null $source_language Pass 'en' for the English cookiedatabase dataset, or
+	 *                                     null to resolve WPML's own default language.
+	 *
+	 * @return string Language code, or an empty string to keep WPML's own fallback.
+	 */
+	function cmplz_get_wpml_source_language( $source_language = null ) {
+		if ( ! is_string( $source_language ) ) {
+			$source_language = '';
+
+			// read wpml's own setting rather than the wpml_default_language filter: other
+			// multilingual plugins answer that filter as a compatibility shim, so it can return a
+			// language code that is not wpml's. Don't run the result through
+			// cmplz_sanitize_language(), which would mangle codes like pt-br and zh-hans.
+			if ( function_exists( 'wpml_get_setting' ) ) {
+				$default_language = wpml_get_setting( 'default_language' );
+				if ( is_string( $default_language ) ) {
+					$source_language = $default_language;
+				}
+			}
+		}
+
+		return $source_language;
+	}
+}
 
 if ( ! function_exists( 'cmplz_register_translation' ) ) {
 
-	function cmplz_register_translation( $string, $fieldname ) {
+	/**
+	 * Register a translation
+	 *
+	 * @param string      $string          The string to register for translation.
+	 * @param string      $fieldname       Name that identifies the string in the translation plugin.
+	 * @param string|null $source_language Language of $string. Defaults to WPML's default language.
+	 *
+	 * @return void
+	 */
+	function cmplz_register_translation( $string, $fieldname, $source_language = null ) {
 		if ( ! is_string( $string ) || !is_string($fieldname) ) {
 			return;
 		}
@@ -2251,11 +2459,12 @@ if ( ! function_exists( 'cmplz_register_translation' ) ) {
 		}
 
 		//wpml
+		$source_language = cmplz_get_wpml_source_language( $source_language );
 		if ( function_exists( 'icl_register_string' ) ) {
-			icl_register_string( 'complianz', $fieldname, $string );
+			icl_register_string( 'complianz', $fieldname, $string, false, $source_language );
 		}
 
-		do_action( 'wpml_register_single_string', 'complianz', $fieldname, $string );
+		do_action( 'wpml_register_single_string', 'complianz', $fieldname, $string, false, $source_language );
 
 	}
 }
@@ -2414,6 +2623,28 @@ if ( ! function_exists( 'cmplz_get_used_consenttypes' ) ) {
 		}
 
 		return $consent_types;
+	}
+}
+
+if ( ! function_exists( 'cmplz_banner_css_is_deterministic' ) ) {
+	/**
+	 * Whether every visitor of this page gets the same banner stylesheet, so its
+	 * URL can be resolved server-side instead of by the javascript.
+	 *
+	 * False when the variant is drawn per visitor and the value would end up in
+	 * cached HTML shared by all of them: under A/B testing the banner id is drawn
+	 * per request, and with more than one used consent type geo-IP picks the type
+	 * per request. Note this is about the URL being invariant, not about geo-IP
+	 * being inactive — with one used type geo-IP can still report 'other'
+	 * (pro/filters-actions.php:141), which suppresses the banner rather than
+	 * changing its stylesheet.
+	 *
+	 * @param string[] $consent_types Consent types in use, from cmplz_get_used_consenttypes().
+	 *
+	 * @return bool
+	 */
+	function cmplz_banner_css_is_deterministic( array $consent_types ) {
+		return ! cmplz_ab_testing_enabled() && count( $consent_types ) === 1;
 	}
 }
 
@@ -2882,7 +3113,7 @@ if ( ! function_exists( 'cmplz_sprintf' ) ) {
 		} else {
 			$output = $args[0];
 			if ( cmplz_admin_logged_in() ){
-				$output .=  '&nbsp;<a target="_blank" href="https://complianz.io/translation-error-sprintf-printf-too-few-arguments">(Translation error)</a>';
+				$output .=  '&nbsp;<a target="_blank" href="https://complianz.io/help/wordpress/troubleshooting/translation-error-sprintf-printf-too-few-arguments/">(Translation error)</a>';
 			}
 			return $output;
 		}
@@ -2921,7 +3152,7 @@ if ( ! function_exists( 'cmplz_printf' ) ) {
 		} else {
 			$output = $args[0];
 			if ( cmplz_admin_logged_in() ){
-				$output .=  '&nbsp;<a target="_blank" href="https://complianz.io/translation-error-sprintf-printf-too-few-arguments">(Translation error)</a>';
+				$output .=  '&nbsp;<a target="_blank" href="https://complianz.io/help/wordpress/troubleshooting/translation-error-sprintf-printf-too-few-arguments/">(Translation error)</a>';
 			}
 			echo $output;
 		}
