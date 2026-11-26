@@ -219,7 +219,7 @@ class WorkSpaces extends API {
         if ( ! $_id ) {
             return $this->error(
                 'invalid_workspace_id',
-                __( 'You should provide a valid WorkSpace ID.', 'templately' ),
+                __( 'You should provide a valid Workspace ID.', 'templately' ),
                 'workspaces/:slug', 404
             );
         }

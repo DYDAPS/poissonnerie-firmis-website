@@ -1,4 +1,49 @@
 == Changelog ==
+= 3.9.2 - 26-11-2026 =
+Added: Rename templates saved in My Cloud right from the plugin.
+Fixed: The sign-in screen background and some My Cloud menu icons were missing since 3.8.0.
+Fixed: The loading logo in the Templately AI panel was too large and not centred.
+Fixed: On narrow screens, the Templately buttons in the block editor pushed the Publish button off screen.
+Fixed: The save to cloud screen kept re-rendering and filled the browser console with errors.
+Fixed: Opening My Cloud while signed out sent requests that failed before the sign-in screen showed.
+Few minor bug fixes and improvements
+
+= 3.9.1 - 16-11-2026 =
+Improved: The promotion bar at the bottom of the template library is easier to tell apart from the templates above it.
+Fixed: The template library showed only the first page of Blocks, Pages and Packs, with no way to see more.
+Fixed: Going to page 2 of search results did not load new templates.
+Fixed: The last row of templates touched the bar at the bottom of the library.
+Fixed: The Templately menu and the "Edit with Templately AI" button could disappear from the block editor toolbar, or flash and vanish after "Show Templately Buttons".
+Fixed: When Edit with AI could not make a change, its message showed technical details and could suggest rephrasing when that would not help.
+Few minor bug fixes and improvements
+
+= 3.9.0 - 05-11-2026 =
+Added: Edit with AI (Alpha) in the Elementor and Gutenberg editors. Describe a change in the chat panel and Templately AI edits the page for you.
+Added: Free AI credits for new users to try Edit with AI.
+Improved: When you come back to the AI content chat for a template pack, you can reuse the business details you shared before or start fresh.
+Improved: Full site import now continues automatically when the server stops it for reaching its time or memory limit.
+Updated: Templately and Save page in Templately are now grouped in one Templately dropdown in the editor top bar.
+Fixed: My Favourites did not load.
+Fixed: Full site import went back to the first step when the browser window was resized.
+Fixed: Full site import stopped at "Downloading Template Pack" on some hosts.
+Fixed: Full site import could stall after retrying a slow step.
+Fixed: Signing in could take you straight back to the sign-in screen.
+Fixed: Browser autofill put your WordPress login into the library search box and the API key field.
+Fixed: Show/Hide Templately buttons option did not apply to every Templately button in the Gutenberg editor.
+Fixed: Elementor page import now saves the page as a draft, as the dialog says.
+Fixed: Saving a page with Templately patterns created duplicate copies of images already in your Media Library.
+Few minor bug fixes and improvements
+
+= 3.8.1 - 19-10-2026 =
+Added: "Included plugins" section on the Subscription page, where bundle subscribers download the Pro plugins their plan includes.
+Improved: Pro plugins are no longer installed automatically during import. The dependency step now points you to the Subscription page to download Essential Addons Pro or Essential Blocks Pro and install it yourself.
+Improved: When Essential Addons Pro or Essential Blocks Pro is installed but not active, the import dependency step now asks you to activate it before importing.
+Improved: The Subscription page now explains why a Pro plugin download failed (download limit reached, connection problem or service error) and lets you try again.
+Fixed: Subscription page could show an outdated plan catalog (missing bundle plans, old prices).
+Fixed: The import dependency dialog said "Install & Proceed to Import" even when every required plugin was already installed.
+Fixed: MCP Adapter is only installed from WordPress.org; the GitHub download fallback was removed.
+Few minor bug fixes and improvements
+
 = 3.8.0 - 23-09-2026 =
 Added: Browse and insert Templately designs from the block inserter and new-page pattern chooser.
 Added: View required plugins on the canvas and install and activate them with one click.

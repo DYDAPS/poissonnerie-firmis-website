@@ -4,6 +4,7 @@ namespace Templately\Modules\MyCloud\REST;
 
 use Templately\API\API;
 use Templately\Core\Platform;
+use Templately\Utils\Response\TemplatelyError;
 use WP_REST_Request;
 
 use function wp_slash;
@@ -14,12 +15,18 @@ use function wp_upload_dir;
 
 class MyClouds extends API {
 
+	/**
+	 * Longest name a My Cloud file may carry, after trimming (spec 062).
+	 */
+	const NAME_MAX_LENGTH = 191;
+
 	public function register_routes() {
 		$this->get( 'clouds', [ $this, 'get_clouds' ] );
 		$this->get( 'clouds/usage', [ $this, 'get_cloud_usage' ] );
 
 		$this->post( 'clouds/copy-move', [ $this, 'copy_or_move' ] );
 		$this->post( 'clouds/upload', [ $this, 'upload' ] );
+		$this->post( 'clouds/rename', [ $this, 'rename' ] );
 
 		$this->get( 'clouds/download/(?P<id>[a-zA-Z0-9-]+)', [ $this, 'download' ] );
 		$this->get( 'clouds/delete/(?P<id>[a-zA-Z0-9-]+)', [ $this, 'delete' ] );
@@ -110,6 +117,16 @@ class MyClouds extends API {
 		$id            = $this->get_param( 'id', 0, 'intval' );
 		$workspace_id  = $this->get_param( 'workspace_id', 0, 'intval' );
 
+		// A name the user typed gets the same rule as a rename (spec 062). When none is
+		// sent, the template's own name is used below, as before.
+		if ( null !== $request->get_param( 'name' ) ) {
+			$name       = is_string( $name ) ? trim( $name ) : '';
+			$name_error = $this->validate_name( $name, 'clouds/upload' );
+			if ( null !== $name_error ) {
+				return $name_error;
+			}
+		}
+
 		if( $file_type === 'elementor' && ! class_exists('Elementor\TemplateLibrary\Source_Local') ) {
 			return $this->error( 'required_elementor', __("Missing required dependency Elementor, please install before trying again.", "templately"), 'clouds/upload', 400 );
         }
@@ -169,7 +186,7 @@ class MyClouds extends API {
 			}
 		}
 
-		return $response;
+		return $this->readable_error( $response );
 	}
 
 	public function download() {
@@ -249,4 +266,104 @@ class MyClouds extends API {
 		)->post();
 	}
 
+	/**
+	 * Rename a My Cloud file (spec 062).
+	 *
+	 * Only the name changes; the cloud keeps the content, thumbnail and storage
+	 * figures. The cloud trims, limits the length and checks ownership; the guards
+	 * here only refuse what can never succeed, before any network call.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return array|\WP_Error The cloud response, unchanged.
+	 */
+	public function rename( WP_REST_Request $request ) {
+		$_id  = $this->get_param( 'id', 0, 'intval' );
+		// Raw on purpose: sanitize_text_field() would store "a < b" as "a &lt; b", and
+		// the name is plain text the cloud keeps and every client escapes on output.
+		// Control characters (tabs, newlines, NUL, DEL) are dropped; plain spaces stay.
+		// A byte-level pattern is UTF-8 safe: these bytes never occur inside a
+		// multibyte sequence.
+		$name = $this->get_param( 'name', '', null );
+		$name = is_string( $name ) ? trim( preg_replace( '/[\x00-\x1F\x7F]/', '', $name ) ) : '';
+
+		if ( $_id <= 0 ) {
+			return $this->error( 'invalid_id', __( 'Invalid Item ID for rename cloud item.', 'templately' ), 'clouds/rename', 400 );
+		}
+
+		$name_error = $this->validate_name( $name, 'clouds/rename' );
+		if ( null !== $name_error ) {
+			return $name_error;
+		}
+
+		$response = $this->http()->mutation(
+			'renameMyCloudItem',
+			'status, message',
+			[
+				'api_key' => $this->api_key,
+				'file_id' => $_id,
+				'name'    => $name,
+			]
+		)->post();
+
+		return $this->readable_error( $response );
+	}
+
+	/**
+	 * The name rule every My Cloud file shares: non-empty and at most
+	 * NAME_MAX_LENGTH characters once trimmed. Checked before any cloud call.
+	 *
+	 * @param string $name     The name, already trimmed.
+	 * @param string $endpoint The route, for the error.
+	 *
+	 * @return \WP_Error|null The 400 to return, or null when the name is valid.
+	 */
+	private function validate_name( $name, $endpoint ) {
+		if ( '' === $name ) {
+			return $this->error( 'invalid_name', __( 'Please enter a name for the file.', 'templately' ), $endpoint, 400 );
+		}
+
+		if ( mb_strlen( $name ) > self::NAME_MAX_LENGTH ) {
+			return $this->error(
+				'invalid_name',
+				/* translators: %d: the longest name allowed, in characters. */
+				sprintf( __( 'The name should not be greater than %d characters.', 'templately' ), self::NAME_MAX_LENGTH ),
+				$endpoint,
+				400
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Give a cloud validation error a message a person can read.
+	 *
+	 * The cloud answers a rejected argument with a GraphQL `errors[]` array and no
+	 * `data`. The normalizer turns its `validation` form into "Validation failed."
+	 * with the real reasons under `fields`; the first of those becomes the message.
+	 * Every other error, and every `{ status, message }` payload, passes unchanged.
+	 *
+	 * @param mixed $response The result of Http::post().
+	 *
+	 * @return mixed The same response, or the error with a readable message.
+	 */
+	private function readable_error( $response ) {
+		if ( ! is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$data   = $response->get_error_data();
+		$fields = is_array( $data ) && isset( $data['fields'] ) && is_array( $data['fields'] ) ? $data['fields'] : [];
+
+		foreach ( $fields as $messages ) {
+			foreach ( (array) $messages as $message ) {
+				if ( is_string( $message ) && '' !== trim( $message ) ) {
+					return new TemplatelyError( $response->get_error_code(), $message, $data );
+				}
+			}
+		}
+
+		return $response;
+	}
 }

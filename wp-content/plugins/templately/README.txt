@@ -1,11 +1,11 @@
 === Templately – Elementor & Gutenberg Template Library: 6500+ Free & Pro Ready Templates And Cloud! ===
-Contributors: templately, wpdevteam, re_enter_rupok, Asif2BD, priyomukul, rahat89, alimuzzamanalim, sapanmozammel
+Contributors: templately, wpdevteam, re_enter_rupok, Asif2BD, priyomukul, rahat89, alimuzzamanalim
 Donate link: https://templately.com
 Tags: templates, elementor template, Gutenberg template, landing page, WoCommerce Templates
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.2
-Stable tag: 3.8.0
+Stable tag: 3.9.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -17,7 +17,7 @@ Templately is an AI-powered WordPress templates cloud for Elementor and Gutenber
 
 Templately is an AI-powered WordPress template cloud for Elementor and Gutenberg. It offers 6,500+ ready template designs that cover a wide range of website niches. Using the ready templates, you can effortlessly design high-converting websites without any code.
 
-What makes Templately unique is its **Full Site Import** feature, allowing you to import templates in just one click, and an AI Content Generator to generate entire website copy instantly. Also, the My WorkSpace and My Cloud storage enable smooth design collaboration, allowing you to manage all your designs in one place with [Templately](https://templately.com/). Features include:
+What makes Templately unique is its **Full Site Import** feature, allowing you to import templates in just one click, and an AI Content Generator to generate entire website copy instantly. Also, the My Workspace and My Cloud storage enable smooth design collaboration, allowing you to manage all your designs in one place with [Templately](https://templately.com/). Features include:
 
 ### ✨ Stunning FREE Templates
 
@@ -33,6 +33,12 @@ Templately AI works on a credit-based system. Each time you generate content, a 
 
 https://www.youtube.com/watch?v=Isv4RY7I02E
 
+### ✨ Edit with Templately AI (Alpha)
+
+Edit your pages in plain words, right inside the Elementor or Gutenberg editor. Click **Edit with Templately AI** in the editor top bar, describe the change, and Templately AI applies it to the page: rewrite text, adjust colors, fonts and spacing, reorder sections, or add a new section from the Templately library.
+
+Type @ to point the AI at a specific section, and undo any AI edit just like your own. Edit with AI uses Templately AI credits, and eligible new users get [free credits](https://templately.com/ai-editor) to try it.
+
 ### 🔥 Full Site Import
 
 Templately Full Site Import allows you to import your entire ready templates pack with just one click, so you will not have to import pages individually, which takes time.
@@ -41,9 +47,9 @@ Templately Full Site Import allows you to import your entire ready templates pac
 
 Save and upload your designed templates to the cloud using Templately’s My Cloud storage feature and access all your saved templates anytime from any device.
 
-### 🤝 ‘My WorkSpace’ For Smooth Collaboration
+### 🤝 ‘My Workspace’ For Smooth Collaboration
 
-Invite your team members to design in collaboration using the Templately ‘My WorkSpace’. This allows you to involve others in designing websites.
+Invite your team members to design in collaboration using the Templately ‘My Workspace’. This allows you to involve others in designing websites.
 
 ### 🚀 Seamless Integration With Popular Page Builders
 
@@ -149,10 +155,55 @@ Visit [WPDeveloper](https://wpdeveloper.com/) to learn more about how to do bett
 2. Saving Templates in Cloud
 3. Template Gallery
 4. Templately My Clouds
-5. Templately My WorkSpace
+5. Templately My Workspace
 
 
 == Changelog ==
+= 3.9.2 - 26-11-2026 =
+Added: Rename templates saved in My Cloud right from the plugin.
+Fixed: The sign-in screen background and some My Cloud menu icons were missing since 3.8.0.
+Fixed: The loading logo in the Templately AI panel was too large and not centred.
+Fixed: On narrow screens, the Templately buttons in the block editor pushed the Publish button off screen.
+Fixed: The save to cloud screen kept re-rendering and filled the browser console with errors.
+Fixed: Opening My Cloud while signed out sent requests that failed before the sign-in screen showed.
+Few minor bug fixes and improvements
+
+= 3.9.1 - 16-11-2026 =
+Improved: The promotion bar at the bottom of the template library is easier to tell apart from the templates above it.
+Fixed: The template library showed only the first page of Blocks, Pages and Packs, with no way to see more.
+Fixed: Going to page 2 of search results did not load new templates.
+Fixed: The last row of templates touched the bar at the bottom of the library.
+Fixed: The Templately menu and the "Edit with Templately AI" button could disappear from the block editor toolbar, or flash and vanish after "Show Templately Buttons".
+Fixed: When Edit with AI could not make a change, its message showed technical details and could suggest rephrasing when that would not help.
+Few minor bug fixes and improvements
+
+= 3.9.0 - 05-11-2026 =
+Added: Edit with AI (Alpha) in the Elementor and Gutenberg editors. Describe a change in the chat panel and Templately AI edits the page for you.
+Added: Free AI credits for new users to try Edit with AI.
+Improved: When you come back to the AI content chat for a template pack, you can reuse the business details you shared before or start fresh.
+Improved: Full site import now continues automatically when the server stops it for reaching its time or memory limit.
+Updated: Templately and Save page in Templately are now grouped in one Templately dropdown in the editor top bar.
+Fixed: My Favourites did not load.
+Fixed: Full site import went back to the first step when the browser window was resized.
+Fixed: Full site import stopped at "Downloading Template Pack" on some hosts.
+Fixed: Full site import could stall after retrying a slow step.
+Fixed: Signing in could take you straight back to the sign-in screen.
+Fixed: Browser autofill put your WordPress login into the library search box and the API key field.
+Fixed: Show/Hide Templately buttons option did not apply to every Templately button in the Gutenberg editor.
+Fixed: Elementor page import now saves the page as a draft, as the dialog says.
+Fixed: Saving a page with Templately patterns created duplicate copies of images already in your Media Library.
+Few minor bug fixes and improvements
+
+= 3.8.1 - 19-10-2026 =
+Added: "Included plugins" section on the Subscription page, where bundle subscribers download the Pro plugins their plan includes.
+Improved: Pro plugins are no longer installed automatically during import. The dependency step now points you to the Subscription page to download Essential Addons Pro or Essential Blocks Pro and install it yourself.
+Improved: When Essential Addons Pro or Essential Blocks Pro is installed but not active, the import dependency step now asks you to activate it before importing.
+Improved: The Subscription page now explains why a Pro plugin download failed (download limit reached, connection problem or service error) and lets you try again.
+Fixed: Subscription page could show an outdated plan catalog (missing bundle plans, old prices).
+Fixed: The import dependency dialog said "Install & Proceed to Import" even when every required plugin was already installed.
+Fixed: MCP Adapter is only installed from WordPress.org; the GitHub download fallback was removed.
+Few minor bug fixes and improvements
+
 = 3.8.0 - 23-09-2026 =
 Added: Browse and insert Templately designs from the block inserter and new-page pattern chooser.
 Added: View required plugins on the canvas and install and activate them with one click.

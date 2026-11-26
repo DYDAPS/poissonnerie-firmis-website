@@ -54,6 +54,7 @@ class ComposerStaticInitfbda63c7fbea4382c611c6bde8fe57fa
         'Templately\\Plugin' => __DIR__ . '/../..' . '/includes/Plugin.php',
         'Templately\\Utils\\Base' => __DIR__ . '/../..' . '/includes/Utils/Base.php',
         'Templately\\Utils\\Caching' => __DIR__ . '/../..' . '/includes/Utils/Caching.php',
+        'Templately\\Utils\\Clock' => __DIR__ . '/../..' . '/includes/Utils/Clock.php',
         'Templately\\Utils\\Database' => __DIR__ . '/../..' . '/includes/Utils/Database.php',
         'Templately\\Utils\\Enqueue' => __DIR__ . '/../..' . '/includes/Utils/Enqueue.php',
         'Templately\\Utils\\Exception\\TemplatelyException' => __DIR__ . '/../..' . '/includes/Utils/Exception/TemplatelyException.php',

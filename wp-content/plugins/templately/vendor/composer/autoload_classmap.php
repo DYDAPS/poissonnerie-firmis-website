@@ -31,6 +31,7 @@ return array(
     'Templately\\Plugin' => $baseDir . '/includes/Plugin.php',
     'Templately\\Utils\\Base' => $baseDir . '/includes/Utils/Base.php',
     'Templately\\Utils\\Caching' => $baseDir . '/includes/Utils/Caching.php',
+    'Templately\\Utils\\Clock' => $baseDir . '/includes/Utils/Clock.php',
     'Templately\\Utils\\Database' => $baseDir . '/includes/Utils/Database.php',
     'Templately\\Utils\\Enqueue' => $baseDir . '/includes/Utils/Enqueue.php',
     'Templately\\Utils\\Exception\\TemplatelyException' => $baseDir . '/includes/Utils/Exception/TemplatelyException.php',

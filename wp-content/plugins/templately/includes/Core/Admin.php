@@ -30,6 +30,8 @@ class Admin extends Base {
 		add_action( 'admin_enqueue_scripts', [ $this, 'scripts' ] );
 		add_action( 'load-toplevel_page_templately', [ $this, 'before_scripts' ] );
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'menu_notice_assets' ] );
+		add_action( 'wp_ajax_' . self::MENU_NOTICE_ACTION, [ $this, 'dismiss_menu_notice' ] );
 
 		self::$cache_bank = CacheBank::get_instance();
 
@@ -337,6 +339,7 @@ class Admin extends Base {
 			'allowed_mime_types'      => get_allowed_mime_types(),
 			'is_free_user'            => $global_user === false || isset( $global_user['plan'] ) && $global_user['plan'] == 'free',
 			'is_disconnected'         => ! empty( $global_user['is_disconnected'] ),
+			'promo_footer'            => self::promo_footer(),
 			'tour_status'             => Options::get_instance()->get( 'tour_status', [] ),
 			// Host-capability map (spec 053) — the ONE delivery point for every
 			// Templately bundle (admin SPA and editor surfaces all localize here).
@@ -380,6 +383,361 @@ class Admin extends Base {
 	}
 
 	/**
+	 * Campaign windows, as site-local wall-clock strings for strtotime().
+	 *
+	 * The one place a campaign's dates live: the dashboard notice and the library
+	 * footer both read them through campaign_window(), so they cannot drift apart.
+	 */
+	const CAMPAIGN_DATES = [
+		'black_friday_2026' => [
+			'start'  => '12:00:01am 15th November, 2026',
+			'expire' => '11:59:59pm 14th December, 2026',
+		],
+	];
+
+	/**
+	 * Start and expiry of a campaign as site-local timestamps (the clock wp-notice
+	 * compares against: current_time( 'timestamp' )).
+	 *
+	 * Plain strtotime(): wp-notice's $notices->strtotime() only handles RELATIVE
+	 * offsets ('+7 day'); an absolute date there parses to 0 (= "already started").
+	 *
+	 * @param string $id Campaign id, a key of CAMPAIGN_DATES.
+	 * @return array{start: int, expire: int}|null Null when the campaign is unknown.
+	 */
+	public static function campaign_window( $id ) {
+		if ( ! isset( self::CAMPAIGN_DATES[ $id ] ) ) {
+			return null;
+		}
+
+		return [
+			'start'  => strtotime( self::CAMPAIGN_DATES[ $id ]['start'] ),
+			'expire' => strtotime( self::CAMPAIGN_DATES[ $id ]['expire'] ),
+		];
+	}
+
+	/**
+	 * Campaign copy for the library-page promo footer (free users only).
+	 *
+	 * The footer shows its default copy all year. While a campaign below is
+	 * inside its start/expire window, its copy replaces the default. To run a
+	 * new campaign, add an entry here; nothing on the client needs to change.
+	 *
+	 * @return array{text: string, button: string, link: string}|null Null = show the default copy.
+	 */
+	public static function promo_footer() {
+		$black_friday_2026 = self::campaign_window( 'black_friday_2026' );
+
+		$campaigns = [
+			'black_friday_2026' => [
+				'start'  => $black_friday_2026['start'],
+				'expire' => $black_friday_2026['expire'],
+				'text'   => __( 'Up to 64% off Templately Pro. Unlock 6,500+ templates, AI editing and unlimited Workspace with team cloud sharing.', 'templately' ),
+				'button' => __( 'Upgrade To Pro Now', 'templately' ),
+				'link'   => Helper::web_url() . '#pricing',
+			],
+		];
+
+		// Same clock AND same comparison as wp-notice (site-timezone timestamp; shown
+		// only while start < now < expire, Notice::show()), so the footer and the
+		// dashboard notice switch on and off at the same second.
+		$now = intval( current_time( 'timestamp' ) );
+		foreach ( $campaigns as $campaign ) {
+			if ( $now > $campaign['start'] && $now < $campaign['expire'] ) {
+				return [
+					'text'   => $campaign['text'],
+					'button' => $campaign['button'],
+					'link'   => $campaign['link'],
+				];
+			}
+		}
+
+		return null;
+	}
+
+	/** Campaign the floating menu notice belongs to (a key of CAMPAIGN_DATES). */
+	const MENU_NOTICE_CAMPAIGN = 'black_friday_2026';
+
+	/** AJAX action that dismisses the floating menu notice. */
+	const MENU_NOTICE_ACTION = 'templately_dismiss_menu_notice';
+
+	/** Nonce action of that AJAX call. */
+	const MENU_NOTICE_NONCE = 'templately_menu_notice';
+
+	/** Option the WPDeveloper plugins share so only one admin pointer shows at a time. */
+	const POINTER_QUEUE_OPTION = '_wpdeveloper_plugin_pointer_priority';
+
+	/** Templately's number in that queue (owner, 2026-11-26); the lowest number shows first. */
+	const POINTER_QUEUE_NUMBER = 2;
+
+	/**
+	 * User meta key that records a dismissal of the floating menu notice.
+	 *
+	 * Keyed to the campaign only, never the plugin version: a dismissal is
+	 * permanent for that user and survives plugin updates (owner, 2026-11-25).
+	 *
+	 * @return string
+	 */
+	public static function menu_notice_meta_key() {
+		return 'templately_menu_notice_dismissed_' . self::MENU_NOTICE_CAMPAIGN;
+	}
+
+	/**
+	 * Copy and link of the floating menu notice.
+	 *
+	 * @return array{title: string, text: string, button: string, dismiss: string, link: string}
+	 */
+	public static function menu_notice_config() {
+		return [
+			'title'   => __( 'Black Friday Is On!', 'templately' ),
+			'text'    => __( 'Up to 64% off Templately Pro. Unlock 6,500+ templates, AI editing and unlimited Workspace with team cloud sharing.', 'templately' ),
+			'button'  => __( 'View Deals', 'templately' ),
+			'dismiss' => __( 'Dismiss', 'templately' ),
+			'link'    => Helper::web_url() . '#pricing',
+		];
+	}
+
+	/**
+	 * Whether the floating menu notice belongs on this admin screen for this user.
+	 *
+	 * Shown to every user with admin access (manage_options; owner, 2026-11-26),
+	 * inside the campaign window with the same clock and the same
+	 * strict comparison as wp-notice and promo_footer(), on desktop only, until
+	 * the user dismisses it. Not on any Templately screen (the library, every
+	 * templately_page_* submenu page such as Settings, the templately_library post
+	 * type) and not inside an editor.
+	 *
+	 * @param string $hook admin_enqueue_scripts hook suffix.
+	 * @return bool
+	 */
+	private function menu_notice_applies( $hook ) {
+		if ( wp_is_mobile() || is_network_admin() || ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		if ( get_user_meta( get_current_user_id(), self::menu_notice_meta_key(), true ) ) {
+			return false;
+		}
+
+		if ( ! self::menu_notice_in_window() ) {
+			return false;
+		}
+
+		if ( self::is_templately_screen_id( $hook ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only screen check; nothing is changed.
+		if ( isset( $_GET['action'] ) && 'elementor' === sanitize_key( wp_unslash( $_GET['action'] ) ) ) {
+			return false;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen ) {
+			return false;
+		}
+
+		if ( self::is_templately_screen_id( $screen->id ) || 'templately_library' === $screen->post_type ) {
+			return false;
+		}
+
+		if ( method_exists( $screen, 'is_block_editor' ) && $screen->is_block_editor() ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Whether now is inside the campaign window (both edges exclusive).
+	 *
+	 * @return bool
+	 */
+	private static function menu_notice_in_window() {
+		$window = self::campaign_window( self::MENU_NOTICE_CAMPAIGN );
+		$now    = intval( current_time( 'timestamp' ) );
+
+		return null !== $window && $now > $window['start'] && $now < $window['expire'];
+	}
+
+	/**
+	 * Take a turn in the pointer queue WPDeveloper plugins share, so only one of
+	 * their admin pointers shows at a time. The option holds the number of the
+	 * plugin whose pointer is showing; the lowest number wins (Essential Addons
+	 * is 1, Templately is 2). Claim it when it is empty or higher than ours.
+	 *
+	 * @return bool True when Templately holds the queue and may show its pointer.
+	 */
+	private static function claim_pointer_queue() {
+		$current = get_option( self::POINTER_QUEUE_OPTION );
+
+		if ( empty( $current ) || absint( $current ) > self::POINTER_QUEUE_NUMBER ) {
+			update_option( self::POINTER_QUEUE_OPTION, self::POINTER_QUEUE_NUMBER );
+			$current = self::POINTER_QUEUE_NUMBER;
+		}
+
+		return self::POINTER_QUEUE_NUMBER === absint( $current );
+	}
+
+	/**
+	 * Free the shared pointer queue, but only when Templately holds it.
+	 *
+	 * @return void
+	 */
+	private static function release_pointer_queue() {
+		if ( self::POINTER_QUEUE_NUMBER === absint( get_option( self::POINTER_QUEUE_OPTION ) ) ) {
+			delete_option( self::POINTER_QUEUE_OPTION );
+		}
+	}
+
+	/**
+	 * Whether a screen id or hook suffix is one of Templately's own admin pages:
+	 * the top-level library page or any submenu page (templately_page_*).
+	 *
+	 * @param string $id Screen id or admin_enqueue_scripts hook suffix.
+	 * @return bool
+	 */
+	private static function is_templately_screen_id( $id ) {
+		$id = (string) $id;
+
+		return 'toplevel_page_templately' === $id || 0 === strpos( $id, 'templately_page_' );
+	}
+
+	/**
+	 * Floating Black Friday notice beside the Templately admin menu item, drawn
+	 * with WordPress core's wp-pointer.
+	 *
+	 * @param string $hook admin_enqueue_scripts hook suffix.
+	 * @return void
+	 */
+	public function menu_notice_assets( $hook = '' ) {
+		// Do not hold the shared pointer queue once the campaign is over.
+		if ( ! self::menu_notice_in_window() ) {
+			self::release_pointer_queue();
+			return;
+		}
+
+		if ( ! $this->menu_notice_applies( $hook ) || ! self::claim_pointer_queue() ) {
+			return;
+		}
+
+		$config = self::menu_notice_config();
+
+		wp_enqueue_style( 'wp-pointer' );
+		wp_enqueue_script( 'wp-pointer' );
+
+		wp_add_inline_style(
+			'wp-pointer',
+			'.templately-menu-notice .wp-pointer-buttons{display:flex;align-items:center;gap:12px;text-align:left}'
+			. '.templately-menu-notice .templately-menu-notice-actions{display:contents}'
+			. '.templately-menu-notice .wp-pointer-buttons a.close{order:2;padding-left:0;margin-left:auto}'
+			. '.templately-menu-notice .wp-pointer-buttons a.close:before{display:none}'
+		);
+
+		$data = [
+			'content' => '<h3>' . esc_html( $config['title'] ) . '</h3><p>' . esc_html( $config['text'] ) . '</p>',
+			'button'  => $config['button'],
+			'dismiss' => $config['dismiss'],
+			'link'    => $config['link'],
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'action'  => self::MENU_NOTICE_ACTION,
+			'nonce'   => wp_create_nonce( self::MENU_NOTICE_NONCE ),
+			// The admin menu sits on the right in RTL, so the pointer opens to its left.
+			'edge'    => is_rtl() ? 'right' : 'left',
+		];
+
+		$script = 'var templatelyMenuNotice = ' . wp_json_encode( $data ) . ";\n" . <<<'JS'
+(function ($) {
+	$(function () {
+		var c = window.templatelyMenuNotice;
+		var $item = $('#toplevel_page_templately');
+		if (!c || !$item.length || !$.fn.pointer) {
+			return;
+		}
+		var sent = false;
+		function dismiss() {
+			if (sent) {
+				return;
+			}
+			sent = true;
+			$.post(c.ajaxUrl, { action: c.action, nonce: c.nonce });
+		}
+		$item.pointer({
+			pointerClass: 'wp-pointer templately-menu-notice',
+			content: c.content,
+			position: { edge: c.edge, align: 'center' },
+			buttons: function (event, t) {
+				var $deal = $('<a class="button button-primary templately-menu-notice-deals" target="_blank" rel="noopener noreferrer"></a>')
+					.attr('href', c.link)
+					.text(c.button)
+					.on('click', function () {
+						t.element.pointer('close');
+					});
+				var $close = $('<a class="close" href="#"></a>')
+					.text(c.dismiss)
+					.on('click', function (e) {
+						e.preventDefault();
+						t.element.pointer('close');
+					});
+				return $('<span class="templately-menu-notice-actions"></span>').append($deal, $close);
+			},
+			close: function () {
+				$(window).off('.templatelyMenuNotice');
+				$(document).off('.templatelyMenuNotice');
+				dismiss();
+			}
+		});
+		$item.pointer('open');
+
+		// Keep the pointer on the menu item when the menu collapses or expands and
+		// on scroll or resize: the admin menu is fixed (or absolute when taller than
+		// the window), so give the pointer the same position and re-place it.
+		var $widget = $item.pointer('widget');
+		var $menu = $('#adminmenuwrap');
+		var pending = false;
+		function stick() {
+			pending = false;
+			if (!$widget.is(':visible')) {
+				return;
+			}
+			$widget.css('position', 'fixed' === $menu.css('position') ? 'fixed' : 'absolute');
+			$item.pointer('reposition');
+		}
+		function schedule() {
+			if (!pending) {
+				pending = true;
+				window.requestAnimationFrame(stick);
+			}
+		}
+		$(window).on('scroll.templatelyMenuNotice resize.templatelyMenuNotice', schedule);
+		$(document).on('wp-collapse-menu.templatelyMenuNotice', schedule);
+		stick();
+	});
+})(jQuery);
+JS;
+
+		wp_add_inline_script( 'wp-pointer', $script );
+	}
+
+	/**
+	 * AJAX: dismiss the floating menu notice for the current user, for good.
+	 *
+	 * @return void
+	 */
+	public function dismiss_menu_notice() {
+		check_ajax_referer( self::MENU_NOTICE_NONCE, 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'You are not allowed to do this.', 'templately' ) ], 403 );
+		}
+
+		update_user_meta( get_current_user_id(), self::menu_notice_meta_key(), 1 );
+		self::release_pointer_queue();
+
+		wp_send_json_success();
+	}
+
+	/**
 	 * Admin notices for Review and others.
 	 *
 	 * @since 2.0.0
@@ -398,6 +756,17 @@ class Admin extends Base {
 			'priority'       => 2,
 		] );
 
+		// wp-notice enqueues this sheet under "{id}-notice-system" with no version, so
+		// WordPress appends the WP version and browsers keep the old CSS after a plugin
+		// update. Registering the handle first makes wp-notice's enqueue reuse it.
+		$notices_css = TEMPLATELY_PATH . 'assets/css/notices.css';
+		wp_register_style(
+			'templately-notice-system',
+			TEMPLATELY_ASSETS . 'css/notices.css',
+			[],
+			TEMPLATELY_VERSION . ( file_exists( $notices_css ) ? '.' . filemtime( $notices_css ) : '' )
+		);
+
 		$global_user     = Options::get_instance()->get( 'user', false, get_current_user_id() );
 		$download_counts = Options::get_instance()->get( 'total_download_counts', 0, get_current_user_id() );
 		$cloud_items     = 0;
@@ -414,7 +783,12 @@ class Admin extends Base {
 				'links'     => [
 					'later'            => [
 						'link'       => 'https://wordpress.org/support/plugin/templately/reviews/#new-post',
-						'target'     => '_blank',
+						// wp-notice only prints keys inside 'attributes'; a top-level
+						// 'target' is silently dropped and the link opens in the admin tab.
+						'attributes' => [
+							'target' => '_blank',
+							'rel'    => 'noopener noreferrer',
+						],
 						'label'      => __( 'Sure, you deserve it!', 'templately' ),
 						'icon_class' => 'dashicons dashicons-external'
 					],
@@ -436,7 +810,8 @@ class Admin extends Base {
 					'support'          => [
 						'link'       => Helper::web_url( '', [ 'support' => 'open' ] ),
 						'attributes' => [
-							'target' => '_blank'
+							'target' => '_blank',
+							'rel'    => 'noopener noreferrer',
 						],
 						'label'      => __( 'I need help', 'templately' ),
 						'icon_class' => 'dashicons dashicons-sos'
@@ -490,23 +865,32 @@ class Admin extends Base {
 			// 	]
 			// ] );
 
-			// spring_savings_2026 notice
-			$_notice_text_spring_savings_2026 = '<p style="margin-top: 0; margin-bottom: 0px;">🌸 Spring Savings: Design Website Quickly With 6,500+ Elementor & Gutenberg Templates, Including AI-Powered Features ⚡️ – Now <strong>Flat 50% OFF!</strong></p>';
+			// black_friday_2026 notice
+			$_notice_text_black_friday_2026 = sprintf(
+				'<p style="margin-top: 0; margin-bottom: 0px;"><strong>🛍️ %1$s</strong> %2$s <strong>%3$s</strong></p>',
+				__( 'Black Friday Sale:', 'templately' ),
+				__( 'Skip the blank page. Design with 6,500+ Elementor & Gutenberg templates, edit them with AI and launch in minutes –', 'templately' ),
+				__( 'up to 64% OFF!', 'templately' )
+			);
 
-			$_spring_savings_2026 = [
-				'thumbnail' => templately()->assets->icon( 'logos/logo-full.svg' ),
-				'html'      => $_notice_text_spring_savings_2026,
+			$_black_friday_2026 = [
+				// Exact logo asset from the Figma design (178.995x44.301).
+				'thumbnail' => templately()->assets->icon( 'logos/logo-notice.svg' ),
+				'html'      => $_notice_text_black_friday_2026,
 				'links'     => [
-					'later'     => [
+					'later'            => [
 						'link'       => Helper::web_url() . '#pricing',
-						'target'     => '_blank',
 						'label'      => __( 'Upgrade To Pro Now', 'templately' ),
+						// wp-notice only prints keys inside 'attributes'; a top-level
+						// 'target' is silently dropped (QA 2026-11-15: opened in the same tab).
 						'attributes' => [
-							'class' => 'button button-primary',
+							'class'  => 'button button-primary',
+							'target' => '_blank',
+							'rel'    => 'noopener noreferrer',
 						]
 					],
 					'never_show_again' => [
-						'label'      => __( 'Maybe Later', 'templately' ),
+						'label'      => __( 'I Want To Pay Full Price', 'templately' ),
 						'attributes' => [
 							'data-dismiss' => true,
 							'class'        => 'button button-link dismiss-btn',
@@ -515,17 +899,35 @@ class Admin extends Base {
 				],
 			];
 
-			$notices->add( 'spring_savings_2026', $_spring_savings_2026, [
-				'start'       => $notices->strtotime('00:00:01AM 8th April, 2026'),
+			$black_friday_2026_window = self::campaign_window( 'black_friday_2026' );
+
+			$notices->add( 'black_friday_2026', $_black_friday_2026, [
+				'start'       => $black_friday_2026_window['start'],
 				'recurrence'  => false,
 				'dismissible' => true,
-				'refresh'     => TEMPLATELY_VERSION,
-				"expire"      => strtotime( '11:59:59pm 10th May, 2026' ),
-				'display_if'  => !wp_is_mobile(),
+				// wp-notice keeps start/expire in the templately_notices option and
+				// rewrites them only when 'refresh' changes. Carrying the dates in it
+				// makes a date edit re-store them without a version bump.
+				'refresh'     => TEMPLATELY_VERSION . '|' . $black_friday_2026_window['start'] . '-' . $black_friday_2026_window['expire'],
+				'expire'      => $black_friday_2026_window['expire'],
+				'display_if'  => ! wp_is_mobile(),
 				'screens'     => [
 					'dashboard',
 				],
 			] );
+
+			// The design is set in Inter, which scripts() does not load on the
+			// Dashboard (it returns early for index.php).
+			add_action( 'admin_enqueue_scripts', function ( $hook ) {
+				if ( 'index.php' === $hook ) {
+					wp_enqueue_style(
+						'templately-inter',
+						set_url_scheme( '//fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap' ),
+						[],
+						null
+					);
+				}
+			} );
 
 			$holiday_text = sprintf(
 				'<p style="margin-top: 0; margin-bottom: 0px;"> 🎁 %s <strong>%s</strong> %s</p>',

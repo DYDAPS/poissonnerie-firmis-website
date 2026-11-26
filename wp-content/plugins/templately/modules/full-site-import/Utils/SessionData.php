@@ -3,6 +3,7 @@
 namespace Templately\Modules\FullSiteImport\Utils;
 
 use Templately\Modules\FullSiteImport\FullSiteImport;
+use Templately\Utils\Clock;
 
 /**
  * SessionData - Centralized session data management
@@ -85,7 +86,7 @@ class SessionData {
 		$option_key = self::get_session_option_key($session_id);
 
 		// Add timestamp for expiry tracking
-		$data['_updated_at'] = time();
+		$data['_updated_at'] = Clock::now();
 
 		// Write to individual option (autoload = no for memory efficiency)
 		return update_option($option_key, $data, false);
@@ -147,7 +148,7 @@ class SessionData {
 		}
 
 		// Add timestamp for expiry tracking
-		$data['_updated_at'] = time();
+		$data['_updated_at'] = Clock::now();
 
 		// Write to individual option (autoload = no for memory efficiency)
 		$option_key = self::get_session_option_key($session_id);
@@ -205,7 +206,7 @@ class SessionData {
 
 		$key   = self::get_run_lock_key($session_id);
 		$token = uniqid('', true);
-		$raw   = maybe_serialize(['owner' => $token, 'heartbeat' => time()]);
+		$raw   = maybe_serialize(['owner' => $token, 'heartbeat' => Clock::now()]);
 
 		// A plain INSERT, straight at the table — NOT add_option(). This used to be
 		// add_option(), described here as "the atomic primitive: it INSERTs and fails
@@ -245,7 +246,7 @@ class SessionData {
 		$existing  = maybe_unserialize($existing_raw);
 		$heartbeat = is_array($existing) ? (int) ($existing['heartbeat'] ?? 0) : 0;
 
-		if ($heartbeat >= time() - $stale_after) {
+		if ($heartbeat >= Clock::now() - $stale_after) {
 			return null;
 		}
 
@@ -524,7 +525,7 @@ class SessionData {
 			'class' => $calling_class,
 			'key' => $key,
 			'reason' => $reason,
-			'timestamp' => time(),
+			'timestamp' => Clock::now(),
 		];
 		return self::append($session_id, "loop.skipped_items", $skip_data);
 	}
@@ -664,7 +665,7 @@ class SessionData {
 	public static function cleanup_expired($max_age_days = 7): array {
 		$all_session_data    = self::get_all_data();
 		$removed_session_ids = [];
-		$threshold_time      = time() - ($max_age_days * DAY_IN_SECONDS);
+		$threshold_time      = Clock::now() - ($max_age_days * DAY_IN_SECONDS);
 
 		foreach ($all_session_data as $session_id => $session_data) {
 			// Active-session exemption (FR-006): never clean a session with a live
@@ -710,7 +711,7 @@ class SessionData {
 		}
 
 		if ( null === $threshold_time ) {
-			$threshold_time = time() - ( 7 * DAY_IN_SECONDS );
+			$threshold_time = Clock::now() - ( 7 * DAY_IN_SECONDS );
 		}
 
 		$session_data = self::get_data( $session_id );
