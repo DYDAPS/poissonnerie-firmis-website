@@ -65,6 +65,11 @@ class Login_Register extends Widget_Base {
 	 */
 	protected $should_print_resetpassword_form;
 	/**
+	 * WooCommerce's reset request on this page, if any: [ rp_login, rp_key ].
+	 * @var array
+	 */
+	protected $wc_reset_request = [];
+	/**
 	 * Should reset password form be printed in editor?
 	 * @var bool
 	 */
@@ -2310,8 +2315,8 @@ class Login_Register extends Widget_Base {
 			'label'       => __( 'Already Used Email', 'essential-addons-for-elementor-lite' ),
 			'type'        => Controls_Manager::TEXT,
 			'label_block' => true,
-			'placeholder' => __( 'Eg. Your email is already in use..', 'essential-addons-for-elementor-lite' ),
-			'default'     => __( 'The provided email is already registered with other account. Please login or reset password or use another email.', 'essential-addons-for-elementor-lite' ),
+			'placeholder' => __( 'Eg. Invalid email provided or the email already registered.', 'essential-addons-for-elementor-lite' ),
+			'default'     => __( 'Invalid email provided or the email already registered.', 'essential-addons-for-elementor-lite' ),
 			'ai' => [
 				'active' => true,
 			],
@@ -6695,6 +6700,7 @@ class Login_Register extends Widget_Base {
 		$this->should_print_register_form = ( $this->user_can_register && ( 'register' === $this->get_settings_for_display( 'default_form_type' ) || 'yes' === $this->get_settings_for_display( 'show_register_link' ) ) );
 		$this->should_print_lostpassword_form = ( 'lostpassword' === $this->default_form || 'yes' === $this->get_settings_for_display( 'show_lost_password' ) );
 		$this->should_print_resetpassword_form_editor = $this->in_editor && 'yes' === $this->get_settings_for_display( 'preview_reset_password' );
+		$this->wc_reset_request = $this->get_wc_reset_request();
 
 		if ( Plugin::$instance->documents->get_current() ) {
 			$this->page_id = Plugin::$instance->documents->get_current()->get_main_id();
@@ -6821,7 +6827,7 @@ class Login_Register extends Widget_Base {
 		if ( $this->should_print_login_form ) {
 			// prepare all login form related vars
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$default_hide_class = ( 'register' === $this->default_form || 'lostpassword' === $this->default_form || $this->should_print_resetpassword_form_editor || isset($_GET['eael-register']) || isset($_GET['eael-lostpassword']) || isset($_GET['eael-resetpassword']) ) ? 'eael-lr-d-none' : '';
+			$default_hide_class = ( 'register' === $this->default_form || 'lostpassword' === $this->default_form || $this->should_print_resetpassword_form_editor || isset($_GET['eael-register']) || isset($_GET['eael-lostpassword']) || $this->is_resetpassword_request() ) ? 'eael-lr-d-none' : '';
 
 			// Force-show this section if a login OTP challenge is in progress, or the editor preview is on.
 			if ( $this->eael_otp_should_force_show( 'login' ) ) {
@@ -7094,7 +7100,7 @@ class Login_Register extends Widget_Base {
 
 		if ( $this->should_print_register_form ) {
 			//phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$default_hide_class = ( 'login' === $this->default_form || 'lostpassword' === $this->default_form || $this->should_print_resetpassword_form_editor || isset($_GET['eael-lostpassword']) || isset($_GET['eael-resetpassword']) ) && !isset($_GET['eael-register']) ? 'eael-lr-d-none' : ''; //eael-register flag for show error/success message when formal form submit
+			$default_hide_class = ( 'login' === $this->default_form || 'lostpassword' === $this->default_form || $this->should_print_resetpassword_form_editor || isset($_GET['eael-lostpassword']) || $this->is_resetpassword_request() ) && !isset($_GET['eael-register']) ? 'eael-lr-d-none' : ''; //eael-register flag for show error/success message when formal form submit
 
 			// Force-show this section if a register OTP challenge is in progress, or the editor preview is on.
 			if ( $this->eael_otp_should_force_show( 'register' ) ) {
@@ -7479,13 +7485,76 @@ class Login_Register extends Widget_Base {
 				if ( $repeated || $email_field_missing || $confirm_email_missing || $pass_missing ) {
 					return false; // error found, exit, dont show form.
 				}
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $form_markup; //XSS OK, data sanitized already.
-			} else {
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $form_markup; //XSS OK, data sanitized already.
 			}
+
+			echo wp_kses( $form_markup, $this->get_register_form_allowed_html() );
 		}
+	}
+
+	/**
+	 * Tags and attributes the register form may print.
+	 *
+	 * The form is buffered and passed through the
+	 * `eael/login-register/register-form-markup` filter, so it is escaped as a
+	 * whole on output. The list covers the post allowlist, form controls,
+	 * Elementor icons (inline SVG) and the markup Pro and other extensions add
+	 * through the form's actions (social login, password meter, consent).
+	 *
+	 * @return array
+	 */
+	protected function get_register_form_allowed_html() {
+		$allowed = wp_kses_allowed_html( 'post' );
+
+		$extra = [
+			'form'           => [ 'action', 'method', 'enctype', 'name', 'novalidate', 'autocomplete', 'target', 'accept-charset' ],
+			'input'          => [ 'type', 'name', 'value', 'placeholder', 'required', 'checked', 'disabled', 'readonly', 'autocomplete', 'autofocus', 'min', 'max', 'minlength', 'maxlength', 'pattern', 'size', 'step', 'accept', 'multiple', 'inputmode', 'form', 'list' ],
+			'select'         => [ 'name', 'required', 'disabled', 'multiple', 'size', 'autocomplete', 'form' ],
+			'option'         => [ 'value', 'selected', 'disabled', 'label' ],
+			'optgroup'       => [ 'label', 'disabled' ],
+			'textarea'       => [ 'name', 'rows', 'cols', 'placeholder', 'required', 'disabled', 'readonly', 'minlength', 'maxlength', 'autocomplete', 'form' ],
+			'button'         => [ 'type', 'name', 'value', 'disabled', 'form' ],
+			'label'          => [ 'for', 'form' ],
+			'fieldset'       => [ 'name', 'disabled', 'form' ],
+			'legend'         => [],
+			'datalist'       => [],
+			'meter'          => [ 'value', 'min', 'max', 'low', 'high', 'optimum' ],
+			'progress'       => [ 'value', 'max' ],
+			'svg'            => [ 'xmlns', 'xmlns:xlink', 'viewbox', 'width', 'height', 'fill', 'stroke', 'stroke-width', 'preserveaspectratio', 'version', 'x', 'y', 'focusable' ],
+			'g'              => [ 'fill', 'stroke', 'stroke-width', 'transform', 'opacity', 'clip-path', 'fill-rule' ],
+			'path'           => [ 'd', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'transform', 'opacity', 'fill-rule', 'clip-rule' ],
+			'circle'         => [ 'cx', 'cy', 'r', 'fill', 'stroke', 'stroke-width', 'transform', 'opacity' ],
+			'ellipse'        => [ 'cx', 'cy', 'rx', 'ry', 'fill', 'stroke', 'stroke-width', 'transform', 'opacity' ],
+			'rect'           => [ 'x', 'y', 'width', 'height', 'rx', 'ry', 'fill', 'stroke', 'stroke-width', 'transform', 'opacity' ],
+			'line'           => [ 'x1', 'y1', 'x2', 'y2', 'stroke', 'stroke-width', 'stroke-linecap', 'transform', 'opacity' ],
+			'polyline'       => [ 'points', 'fill', 'stroke', 'stroke-width', 'transform', 'opacity' ],
+			'polygon'        => [ 'points', 'fill', 'stroke', 'stroke-width', 'transform', 'opacity' ],
+			'defs'           => [],
+			'clippath'       => [ 'clippathunits' ],
+			'lineargradient' => [ 'x1', 'y1', 'x2', 'y2', 'gradientunits', 'gradienttransform' ],
+			'radialgradient' => [ 'cx', 'cy', 'r', 'fx', 'fy', 'gradientunits', 'gradienttransform' ],
+			'stop'           => [ 'offset', 'stop-color', 'stop-opacity' ],
+			'title'          => [],
+			'section'        => [],
+		];
+
+		// wp_kses() only understands the `data-*` wildcard, so ARIA attributes are listed one by one.
+		$global = [
+			'id', 'class', 'style', 'title', 'role', 'tabindex', 'hidden', 'lang', 'dir', 'data-*',
+			'aria-atomic', 'aria-busy', 'aria-checked', 'aria-controls', 'aria-current', 'aria-describedby', 'aria-details',
+			'aria-disabled', 'aria-errormessage', 'aria-expanded', 'aria-haspopup', 'aria-hidden', 'aria-invalid', 'aria-label',
+			'aria-labelledby', 'aria-live', 'aria-pressed', 'aria-required', 'aria-selected', 'aria-valuemax', 'aria-valuemin',
+			'aria-valuenow', 'aria-valuetext',
+		];
+
+		foreach ( $extra as $tag => $attributes ) {
+			$allowed[ $tag ] = array_merge( isset( $allowed[ $tag ] ) ? $allowed[ $tag ] : [], array_fill_keys( $attributes, true ) );
+		}
+
+		foreach ( $allowed as $tag => $attributes ) {
+			$allowed[ $tag ] = array_merge( is_array( $attributes ) ? $attributes : [], array_fill_keys( $global, true ) );
+		}
+
+		return apply_filters( 'eael/login-register/register-form-allowed-html', $allowed );
 	}
 
 	protected function print_lostpassword_form(){
@@ -7505,7 +7574,7 @@ class Login_Register extends Widget_Base {
 
 			// prepare all lostpassword form related vars
 			//phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$default_hide_class = ( 'register' === $this->default_form || 'login' === $this->default_form || $this->should_print_resetpassword_form_editor || isset($_GET['eael-register']) || isset($_GET['eael-resetpassword']) ) && !isset($_GET['eael-lostpassword']) ? 'eael-lr-d-none' : '';
+			$default_hide_class = ( 'register' === $this->default_form || 'login' === $this->default_form || $this->should_print_resetpassword_form_editor || isset($_GET['eael-register']) || $this->is_resetpassword_request() ) && !isset($_GET['eael-lostpassword']) ? 'eael-lr-d-none' : '';
 
 			//Login link related
 			$login_link_action_lostpassword = ! empty( $this->ds['login_link_action_lostpassword'] ) ? esc_html( $this->ds['login_link_action_lostpassword'] ) : 'form';
@@ -7653,6 +7722,49 @@ class Login_Register extends Widget_Base {
 		}
 	}
 
+	/**
+	 * Whether this request should show the reset password form: the widget's own
+	 * reset link, or WooCommerce's.
+	 *
+	 * @return bool
+	 */
+	protected function is_resetpassword_request() {
+		return isset( $_GET['eael-resetpassword'] ) || ! empty( $this->wc_reset_request ); //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * WooCommerce's set or reset password link, when this widget is on the My
+	 * Account page in place of [woocommerce_my_account].
+	 *
+	 * WooCommerce's links (the New Account email's "set your new password", and
+	 * its lost password emails) move the key into the wp-resetpass-{COOKIEHASH}
+	 * cookie and redirect to the lost-password endpoint with show-reset-form,
+	 * expecting its shortcode to read the cookie. This reads it the same way.
+	 *
+	 * @return array [ rp_login, rp_key ], or empty when this isn't such a request.
+	 */
+	protected function get_wc_reset_request() {
+		//phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! function_exists( 'is_wc_endpoint_url' ) || empty( $_GET['show-reset-form'] ) || ! is_wc_endpoint_url( 'lost-password' ) ) {
+			return [];
+		}
+
+		$cookie = 'wp-resetpass-' . COOKIEHASH;
+		if ( empty( $_COOKIE[ $cookie ] ) || ! is_string( $_COOKIE[ $cookie ] ) || ! ( 0 < strpos( $_COOKIE[ $cookie ], ':' ) ) ) {
+			return [];
+		}
+
+		list( $user_id, $key ) = explode( ':', wp_unslash( $_COOKIE[ $cookie ] ), 2 ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$user = get_userdata( absint( $user_id ) );
+
+		// An unknown user still counts, so the key check below fails and the
+		// visitor is told the link is invalid instead of seeing the login form.
+		return [
+			'rp_login' => $user ? $user->user_login : '',
+			'rp_key'   => sanitize_text_field( $key ),
+		];
+	}
+
 	protected function print_resetpassword_form(){
 		// Suppress this section entirely while any OTP challenge is in flight.
 		if ( $this->eael_otp_active_flow() ) {
@@ -7660,7 +7772,7 @@ class Login_Register extends Widget_Base {
 		}
 
 		//phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$default_hide_class = ( 'register' === $this->default_form || 'login' === $this->default_form || 'lostpassword' === $this->default_form || isset($_GET['eael-register']) || isset($_GET['eael-lostpassword']) ) && !isset($_GET['eael-resetpassword']) ? 'eael-lr-d-none' : '';
+		$default_hide_class = ( 'register' === $this->default_form || 'login' === $this->default_form || 'lostpassword' === $this->default_form || isset($_GET['eael-register']) || isset($_GET['eael-lostpassword']) ) && ! $this->is_resetpassword_request() ? 'eael-lr-d-none' : '';
 		$default_hide_class = $this->should_print_resetpassword_form_editor ? '' : $default_hide_class;
 		$rp_page_url = ! empty( $this->page_id_for_popup ) ? get_permalink( $this->page_id_for_popup ) : get_permalink( $this->page_id );
 
@@ -7674,7 +7786,7 @@ class Login_Register extends Widget_Base {
 			delete_option( 'eael_lr_resetpassword_form_info' );
 		}
 
-		if ( $this->should_print_resetpassword_form_editor || ( ! empty( $_GET['eael-resetpassword'] ) ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $this->should_print_resetpassword_form_editor || $this->is_resetpassword_request() ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$show_resetpassword_on_form_submit = get_option('eael_show_reset_password_on_form_submit_' . $this->get_id());
 
 			$validation_required = true;
@@ -7684,6 +7796,9 @@ class Login_Register extends Widget_Base {
 
 			$rp_data['rp_login'] = ! empty( $_GET['eael_login'] ) ? sanitize_text_field( wp_unslash( $_GET['eael_login'] ) ) : ''; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$rp_data['rp_key']   =  ! empty( $_GET['eael_key'] ) ? sanitize_text_field( wp_unslash( $_GET['eael_key'] ) ) : ''; //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( $this->wc_reset_request ) {
+				$rp_data = $this->wc_reset_request;
+			}
 
 			//phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 			if( $validation_required && ! isset( $_POST['eael-resetpassword-submit'] ) ){
@@ -7979,7 +8094,7 @@ class Login_Register extends Widget_Base {
 			}
 		}
 		?>
-		<div class="eael-lr-otp-wrapper<?php echo $visible ? '' : ' eael-d-none'; ?><?php echo $editor_preview ? ' eael-lr-otp-editor-preview' : ''; ?>"
+		<div class="eael-lr-otp-wrapper<?php echo esc_attr( $visible ? '' : ' eael-d-none' ); ?><?php echo esc_attr( $editor_preview ? ' eael-lr-otp-editor-preview' : '' ); ?>"
 			 data-remaining-cooldown="<?php echo esc_attr( $initial_remaining_cooldown ); ?>"
 			 data-flow="<?php echo esc_attr( $form_type ); ?>"
 			 data-widget-id="<?php echo esc_attr( $widget_id ); ?>"
@@ -8146,7 +8261,11 @@ class Login_Register extends Widget_Base {
 
 		$success_key = 'eael_lostpassword_success_' . esc_attr( $this->get_id() );
 
-		if ( intval( get_option( $error_key_show ) ) ) {
+		// Set by the reset-link redirect (eael-lr-expired=<widget id>). The option is
+		// how older releases did it and is still honoured once for stored rows.
+		$expired_link = isset( $_GET['eael-lr-expired'] ) && sanitize_text_field( wp_unslash( $_GET['eael-lr-expired'] ) ) === (string) $this->get_id(); //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( $expired_link || intval( get_option( $error_key_show ) ) ) {
 			$rp_err_msg = isset( $this->ds['err_reset_password_key_expired'] ) ? esc_html( $this->ds['err_reset_password_key_expired'] ) : esc_html__( 'Hey Your password reset link appears to be invalid. Please request a new link.', 'essential-addons-for-elementor-lite' );
 			?>
             <p class="eael-form-msg invalid">

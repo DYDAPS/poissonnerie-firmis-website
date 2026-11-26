@@ -82,7 +82,16 @@ class Filterable_Gallery extends Widget_Base
     }
 
     protected function is_dynamic_content():bool {
-        return false;
+        // ACF Repeater reads rows from the post being viewed, so a render cached on a
+        // shared template would show the first post's rows on every post.
+        // The editor also asks each widget type, which has no settings, when it
+        // builds the widget list: get_data() fails on that, so stop there.
+        if ( $this->is_type_instance() ) {
+            return false;
+        }
+        $settings = $this->get_data( 'settings' );
+
+        return is_array( $settings ) && 'acf_repeater' === ( $settings['eael_fg_data_source'] ?? '' );
     }
 
     public function has_widget_inner_wrapper(): bool {
@@ -1258,7 +1267,7 @@ class Filterable_Gallery extends Widget_Base
                 'type'         => Controls_Manager::SWITCHER,
                 'return_value' => 'yes',
                 'default'      => '',
-                'description'  => __( 'Enable this to use an HTML5 video tag instead of iframe for self-hosted videos. Recommended for iOS devices.', 'essential-addons-for-elementor-lite' ),
+                'description'  => __( 'Enable this to use an HTML5 video tag instead of iframe for self-hosted videos on mobile devices. iOS devices always use the video tag.', 'essential-addons-for-elementor-lite' ),
                 'condition'    => [
                     'eael_fg_caption_style!' => [ 'grid_flow_gallery', 'harmonic_gallery' ],
                 ],

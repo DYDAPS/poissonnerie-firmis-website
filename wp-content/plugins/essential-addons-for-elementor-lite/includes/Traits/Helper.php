@@ -52,7 +52,7 @@ trait Helper
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		    if ( !empty( $_GET[ 'typeform_tk' ] ) && !empty( $_GET[ 'pr_code' ] ) ) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			    if ( wp_hash( 'eael_typeform' ) === sanitize_text_field( wp_unslash( $_GET[ 'pr_code' ] ) ) ) {
+			    if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ 'pr_code' ] ) ), 'eael_typeform_connect' ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				    update_option( 'eael_save_typeform_personal_token', sanitize_text_field( wp_unslash( $_GET[ 'typeform_tk' ] ) ), false );
 			    }
@@ -126,6 +126,9 @@ trait Helper
 	 * @return array
 	 */
 	public function eael_get_widget_settings( $page_id, $widget_id ) {
+		if ( ! \Essential_Addons_Elementor\Classes\Helper::eael_widget_settings_readable( $page_id ) ) {
+			return [];
+		}
 		$document = Plugin::$instance->documents->get( $page_id );
 		$settings = [];
 		if ( $document ) {
@@ -187,7 +190,7 @@ trait Helper
 		    'data-class'     => get_class( $this ),
 		    'data-layout'    => isset( $settings['layout_mode'] ) ? $settings['layout_mode'] : "",
 		    'data-page'      => 1,
-		    'data-args'      => http_build_query( $args ),
+		    'data-args'      => HelperClass::eael_signed_load_more_args( $args ),
 	    ]);
 
 	    if ( $max_page ) {
@@ -492,6 +495,35 @@ trait Helper
 				}
 			}
 		}
+	}
+
+	/**
+	 * Tell WPML where our widgets keep a dynamic popup id, so a translated page
+	 * opens the translated popup instead of the original one.
+	 *
+	 * WPML converts the ids in Elementor's own dynamic links, but not in a
+	 * custom widget's link control. Each converter is
+	 * [ widget matcher, path to the dynamic setting, dynamic tag name, id key ],
+	 * the format WPML documents for this filter.
+	 *
+	 * @param array $converters WPML's converters.
+	 *
+	 * @return array
+	 */
+	public function eael_wpml_dynamic_id_converters( $converters ) {
+		if ( ! class_exists( '\WPML\FP\Relation' ) || ! class_exists( '\WPML\FP\Obj' ) ) {
+			return $converters;
+		}
+
+		$converters   = (array) $converters;
+		$converters[] = [
+			\WPML\FP\Relation::propEq( 'widgetType', 'eael-creative-button' ),
+			\WPML\FP\Obj::lensPath( [ 'settings', '__dynamic__', 'creative_button_link_url' ] ),
+			'popup',
+			'popup',
+		];
+
+		return $converters;
 	}
 
 	/**
