@@ -35,14 +35,21 @@ define( 'WP_DEBUG_DISPLAY', false );
 define( 'WP_DEBUG_LOG', false );
 define( 'SCRIPT_DEBUG', false );
 define( 'SAVEQUERIES', false );
-// For temporary local diagnosis only, enable WP_DEBUG and optionally WP_DEBUG_LOG.
-// Keep logs outside the public web root; disable diagnostics after investigation.
+// WP_DEBUG enables notices and warnings; use it only during local diagnosis.
+// WP_DEBUG_DISPLAY controls showing errors in page output; keep false in production.
+// WP_DEBUG_LOG writes errors to a log (normally wp-content/debug.log); keep it off
+// in production unless logs are routed and protected outside the public web root.
+// SCRIPT_DEBUG loads development versions of core CSS/JavaScript instead of minified files.
+// SAVEQUERIES stores SQL queries and timings in memory; it can slow requests and expose data.
+// For temporary local diagnosis, enable only the required options and then disable them.
 
 // Production policy for Git-managed application files (apply only to reviewed
-// production configs): these settings disable WordPress-managed file updates,
-// including automatic translation updates. Monitor security releases and deploy
-// promptly through the DYDAPS Git workflow. Update notifications/checks remain
-// available through approved monitoring and maintenance workflows.
+// production configs). AUTOMATIC_UPDATER_DISABLED stops background updates,
+// including translations, and can suppress WordPress update notification emails.
+// WP_AUTO_UPDATE_CORE=false stops automatic WordPress Core updates.
+// DISALLOW_FILE_MODS blocks dashboard installation/update of Core, plugins, and themes.
+// DISALLOW_FILE_EDIT disables the built-in dashboard plugin/theme code editor.
+// Keep independent security monitoring and deliver fixes promptly through Git.
 // define( 'AUTOMATIC_UPDATER_DISABLED', true );
 // define( 'WP_AUTO_UPDATE_CORE', false );
 // define( 'DISALLOW_FILE_MODS', true );
