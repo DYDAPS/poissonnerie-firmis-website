@@ -23,3 +23,9 @@ Use `$dydaps-wordpress-maintenance` for commit creation and promotion. Every com
 Create one code-update commit per component. Independent translations use one separate commit per component per campaign, including every language, text domain, file, and PO/MO/JSON/`.l10n.php` format. Never split translations by language, file, or format; combine components; or create empty translation commits. Use `🌐 Update WordPress translations`, `🌐 Update [Plugin name] translations`, or `🌐 Update [Theme name] translations`, without a language name. Translations inseparable from an official component distribution may remain in its update commit.
 
 Install and run the Skill's Git policy hooks before commits and pushes. Maintenance `AGENTS.md` belongs only on `develop`. History rewrites and force pushes require explicit authorization for the specific task.
+
+## OVH access and deployment safeguards
+
+- Current access evidence: SSH, SFTP, FTP/FTPS, and full OVH filesystem access were not confirmed in the current campaign. Confirm the available protocol and OVH Git project state before a production action; do not infer it from a push event.
+- Production deployment source is `main` only. Verify the OVH repository association, source branch, deployment directory, site status, webhook and completed job before release. Never configure or deploy `develop` to production. A successful Git push or webhook response does not prove deployment completion.
+- Inventory production filesystem changes before deployment. Protect `wp-config.php`, `.htaccess`, uploads, media, backups, caches, generated plugin data and unverified files. Quarantine only exact approved collision paths after remote SHA-256 recheck and a verified backup; retain a restore manifest.
